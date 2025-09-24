@@ -205,7 +205,7 @@ const HomeScreen = () => {
 
   return (
     <Page className="relative min-h-screen bg-neutral-50 text-neutral-900">
-      <Box className="sticky top-0 z-30 border-b border-neutral-200 bg-white/80">
+      <Box className="sticky top-0 z-30 border-b border-neutral-200 bg-white">
         <div className="px-5 py-3 flex items-center gap-3 pt-14">
           <img
             src="https://www.mappacific.com/wp-content/uploads/2021/08/logo.png"
