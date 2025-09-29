@@ -68,40 +68,52 @@ export default function ListLuckyResultModal({
             </Text>
 
             <Box
-              className={`mt-4 max-h-60 overflow-y-auto  ${
-                revealed ? "blur-none" : "blur-sm"
-              } transition-all duration-500`}
+              className={`mt-4 max-h-60 overflow-x-auto transition-all duration-500 grid grid-cols-3 justify-center ${
+                revealed ? "gap-3" : "gap-0"
+              }`}
             >
-              {queue.map((result, index) => (
-                <Box
-                  key={index}
-                  className={`mt-5 flex items-center justify-center gap-3`}
-                >
-                  {result.prizeImage ? (
-                    <img
-                      src={result.prizeImage}
-                      width={56}
-                      height={56}
-                      className="ring-2 ring-amber-400 rounded-sm"
-                    />
-                  ) : (
-                    <Box className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center ring-2 ring-amber-400">
-                      <Icon icon="zi-star" className="text-amber-600 text-xl" />
-                    </Box>
-                  )}
-
-                  <Box className="text-left">
-                    <Text className="text-base font-semibold">
-                      {result.prizeLabel}
-                    </Text>
-                    <Text className="text-xs text-gray-500">
-                      {result.code ? `Mã lượt: ${result.code} • ` : ""}
-                      {timeText}
-                    </Text>
+              {["1323", "44312", "12312", "3123", "123", "123123", "4234"].map(
+                (n, i) => (
+                  <Box
+                    key={i}
+                    className={`text-xl font-semibold text-amber-700 transition-all duration-500 ${
+                      n === "44312" ? "font-black" : ""
+                    }`}
+                  >
+                    {n}
                   </Box>
-                </Box>
-              ))}
+                )
+              )}
             </Box>
+            {queue[0].programTitle && (
+              <Text className="mt-1 text-xs text-gray-500">
+                {queue[0].programTitle}
+              </Text>
+            )}
+            {revealed && (
+              <Box
+                className={`mt-5 flex flex-row items-center justify-center gap-4  transition-all duration-500`}
+              >
+                {queue[0].prizeImage ? (
+                  <img
+                    src={queue[0].prizeImage}
+                    className="ring-2 ring-amber-400 w-16 h-16 rounded-sm"
+                  />
+                ) : (
+                  <Icon icon="zi-photo" className="text-4xl text-amber-400" />
+                )}
+                <Box>
+                  <Text className="text-left text-sm font-semibold text-gray-700">
+                    {queue[0].prizeLabel}
+                  </Text>
+                  {queue[0].code && (
+                    <Text className="text-left text-xs text-gray-500">
+                      Mã lượt: {queue[0].code} • {timeText}
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+            )}
             <Box className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <Box className="flex items-center justify-center gap-2">
                 <Icon icon="zi-user" className="text-gray-500 text-base" />

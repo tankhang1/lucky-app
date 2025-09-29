@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Modal, Box, Text, Button, Icon, Avatar } from "zmp-ui";
 import RotateLuckyNumber from "./rotate-lucky-number";
 import Gift from "../assets/gift.png";
+import Confetti from "react-confetti-boom";
 type LuckyResult = {
   targetNumber: number;
   prizeLabel: string;
@@ -72,34 +73,33 @@ export default function LuckyResultModal({
                 {result.programTitle}
               </Text>
             )}
+            {revealed && (
+              <Box
+                className={`mt-5 flex items-center justify-center gap-3  transition-all duration-500`}
+              >
+                {result.prizeImage ? (
+                  <Avatar
+                    src={result.prizeImage}
+                    size={56}
+                    className="ring-2 ring-amber-400"
+                  />
+                ) : (
+                  <Box className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center ring-2 ring-amber-400">
+                    <Icon icon="zi-star" className="text-amber-600 text-xl" />
+                  </Box>
+                )}
 
-            <Box
-              className={`mt-5 flex items-center justify-center gap-3 ${
-                revealed ? "blur-none" : "blur-sm"
-              } transition-all duration-500`}
-            >
-              {result.prizeImage ? (
-                <Avatar
-                  src={result.prizeImage}
-                  size={56}
-                  className="ring-2 ring-amber-400"
-                />
-              ) : (
-                <Box className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center ring-2 ring-amber-400">
-                  <Icon icon="zi-star" className="text-amber-600 text-xl" />
+                <Box className="text-left">
+                  <Text className="text-base font-semibold">
+                    {result.prizeLabel}
+                  </Text>
+                  <Text className="text-xs text-gray-500">
+                    {result.code ? `Mã lượt: ${result.code} • ` : ""}
+                    {timeText}
+                  </Text>
                 </Box>
-              )}
-
-              <Box className="text-left">
-                <Text className="text-base font-semibold">
-                  {result.prizeLabel}
-                </Text>
-                <Text className="text-xs text-gray-500">
-                  {result.code ? `Mã lượt: ${result.code} • ` : ""}
-                  {timeText}
-                </Text>
               </Box>
-            </Box>
+            )}
 
             <Box className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <Box className="flex items-center justify-center gap-2">
@@ -134,6 +134,7 @@ export default function LuckyResultModal({
             </Box>
           </Box>
         </Box>
+        {revealed && <Confetti />}
       </Box>
     </Modal>
   );

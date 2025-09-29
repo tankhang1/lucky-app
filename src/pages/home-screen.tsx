@@ -13,7 +13,7 @@ type Program = {
 };
 
 const STATUS_LABEL: Record<Program["status"], string> = {
-  open: "Đang mở",
+  open: "Đang diễn ra",
   upcoming: "Sắp diễn ra",
   closed: "Đã kết thúc",
   joined: "Đã tham gia",
@@ -21,8 +21,7 @@ const STATUS_LABEL: Record<Program["status"], string> = {
 
 const TABS: Array<{ key: "all" | Program["status"]; label: string }> = [
   { key: "all", label: "Tất cả" },
-  { key: "open", label: "Đang mở" },
-  { key: "upcoming", label: "Sắp diễn ra" },
+  { key: "open", label: "Đang diễn ra" },
   { key: "closed", label: "Kết thúc" },
   { key: "joined", label: "Đã tham gia" },
 ];
@@ -154,7 +153,7 @@ const Card = ({
             <div className={`h-1.5 w-1.5 rounded-full ${dotColor(p.status)}`} />
             <span>
               {p.status === "open"
-                ? "Đang mở"
+                ? "Đang diễn ra"
                 : p.status === "upcoming"
                 ? "Sắp mở"
                 : p.status === "joined"
@@ -289,7 +288,7 @@ const HomeScreen = () => {
               {tab === "all"
                 ? "Tất cả chương trình"
                 : tab === "open"
-                ? "Đang mở"
+                ? "Đang diễn ra"
                 : tab === "upcoming"
                 ? "Sắp diễn ra"
                 : tab === "closed"

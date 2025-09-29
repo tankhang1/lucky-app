@@ -1,5 +1,6 @@
 import HistoryScreen from "@/pages/history-screen";
 import HomeScreen from "@/pages/home-screen";
+import OtpScreen from "@/pages/otp-screen";
 import ProgramDetailScreen from "@/pages/program-detail";
 import SplashScreen from "@/pages/splash-screen";
 import { getSystemInfo } from "zmp-sdk";
@@ -25,6 +26,7 @@ const Layout = () => {
               element={<ProgramDetailScreen />}
             ></Route>
             <Route path="/history" element={<HistoryScreen />}></Route>
+            <Route path="/otp" element={<OtpScreen />} />
           </AnimationRoutes>
         </ZMPRouter>
       </SnackbarProvider>

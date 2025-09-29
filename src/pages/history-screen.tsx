@@ -47,19 +47,21 @@ const startOfWeek = (d = new Date()) => {
 };
 const startOfMonth = (d = new Date()) =>
   new Date(d.getFullYear(), d.getMonth(), 1);
+
 const TABS = [
   { key: "all", label: "Tất cả" },
   { key: "today", label: "Hôm nay" },
   { key: "week", label: "Tuần này" },
   { key: "month", label: "Tháng này" },
-];
+] as const;
+type TimeFilter = (typeof TABS)[number]["key"];
+
 const HistoryLuckyResultPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [filter, setFilter] = useState<"all" | "today" | "week" | "month">(
-    "all"
-  );
-  const [tab, setTab] = useState<string>("all");
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
+  const [tab, setTab] = useState<TimeFilter>("all");
+  const [programFilter, setProgramFilter] = useState<string>("all");
   const [data, setData] = useState<LuckyResult[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,12 +95,27 @@ const HistoryLuckyResultPage = () => {
         code: "QT-889",
         time: "2025-08-05T09:12:00+07:00",
       },
+      {
+        targetNumber: 9999,
+        prizeLabel: "Móc khóa",
+        programTitle: "Lucky Draw Mùa Vụ",
+        winnerName: "Lê Châu",
+        winnerPhone: "0901234567",
+        code: "TD-045",
+        time: "2025-09-24T16:00:00+07:00",
+      },
     ];
     setTimeout(() => {
       setData(mock);
       setLoading(false);
     }, 150);
   }, []);
+
+  const programs = useMemo(() => {
+    const set = new Set<string>();
+    data.forEach((r) => set.add(r.programTitle || "Khác"));
+    return ["all", ...Array.from(set)];
+  }, [data]);
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -113,16 +130,22 @@ const HistoryLuckyResultPage = () => {
 
     const now = new Date();
     const boundary =
-      filter === "today"
+      timeFilter === "today"
         ? startOfDay(now)
-        : filter === "week"
+        : timeFilter === "week"
         ? startOfWeek(now)
-        : filter === "month"
+        : timeFilter === "month"
         ? startOfMonth(now)
         : null;
 
+    const byProgram = (r: LuckyResult) =>
+      programFilter === "all"
+        ? true
+        : (r.programTitle || "Khác") === programFilter;
+
     return data
       .filter(byQ)
+      .filter(byProgram)
       .filter((r) =>
         boundary ? new Date(r.time || Date.now()) >= boundary : true
       )
@@ -130,7 +153,7 @@ const HistoryLuckyResultPage = () => {
         (a, b) =>
           new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime()
       );
-  }, [data, q, filter]);
+  }, [data, q, timeFilter, programFilter]);
 
   const groups = useMemo(() => {
     const map = new Map<string, LuckyResult[]>();
@@ -173,11 +196,13 @@ const HistoryLuckyResultPage = () => {
         <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
           {TABS.map((t) => {
             const active = tab === t.key;
-
             return (
               <button
                 key={t.key}
-                onClick={() => setTab(t.key)}
+                onClick={() => {
+                  setTab(t.key);
+                  setTimeFilter(t.key);
+                }}
                 className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
                   active
                     ? "bg-brand-gradient text-white shadow-[0_10px_24px_rgba(0,0,0,0.10)]"
@@ -188,6 +213,40 @@ const HistoryLuckyResultPage = () => {
               </button>
             );
           })}
+        </div>
+
+        <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {programs.map((p) => {
+            const active = programFilter === p;
+            return (
+              <button
+                key={p}
+                onClick={() => setProgramFilter(p)}
+                className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
+                  active
+                    ? "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.35)]"
+                    : "bg-white border border-neutral-200 text-neutral-700"
+                }`}
+                title={p === "all" ? "Tất cả chương trình" : p}
+              >
+                {p === "all" ? "Tất cả chương trình" : p}
+              </button>
+            );
+          })}
+          {programFilter !== "all" || timeFilter !== "all" || q ? (
+            <Button
+              size="small"
+              className="ml-1 !h-9 !px-3 !text-xs !bg-neutral-100 !text-neutral-700 hover:!bg-neutral-200"
+              onClick={() => {
+                setQ("");
+                setProgramFilter("all");
+                setTimeFilter("all");
+                setTab("all");
+              }}
+            >
+              Xóa lọc
+            </Button>
+          ) : null}
         </div>
       </div>
 
