@@ -1,36 +1,112 @@
-import { Phone, ShieldCheck, Lock } from "lucide-react";
-import { useMemo, useState } from "react";
-import { authorize } from "zmp-sdk";
+import { isValidPhone } from "@/hooks/validate.hooks";
+import {
+  useCheckUserIdMutation,
+  useGetOTPMutation,
+  useUpdateZaloInfoMutation,
+} from "@/redux/api/auth/auth.api";
+import { Phone } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  authorize,
+  getAccessToken,
+  getLocation,
+  getPhoneNumber,
+  getUserID,
+  getUserInfo,
+} from "zmp-sdk";
 import { Page, Box, Button, Text, useNavigate, Input } from "zmp-ui";
-
-const isValidVNPhone = (v: string) => /^(\d){9,11}$/.test(v.replace(/\D/g, ""));
 
 const SplashScreen = () => {
   const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [hasInfo, setHasInfo] = useState(false);
+  const [manualLoading, setManualLoading] = useState(false);
   const navigate = useNavigate();
-  const canSubmit = useMemo(() => isValidVNPhone(phone), [phone]);
-
+  const canSubmit = useMemo(() => isValidPhone(phone), [phone]);
+  const [requestOtp, { isLoading: isLoadingRequestOtp }] = useGetOTPMutation();
+  const [checkUserId, { isLoading: isLoadingCheckUserId }] =
+    useCheckUserIdMutation();
+  const [updateZaloInfo, { isLoading: isLoadingUpdateZaloInfo }] =
+    useUpdateZaloInfoMutation();
   const onSubmit = async () => {
-    if (!canSubmit) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/otp");
-    }, 600);
+    await requestOtp({
+      phone,
+    })
+      .unwrap()
+      .then(() => {
+        navigate("/otp");
+      })
+      .catch(() => {
+        navigate("/otp");
+      });
   };
   const onLoginWithZalo = async () => {
-    // const data = await authorize({
-    //   scopes: ["scope.userLocation", "scope.userPhonenumber"],
-    // });
-    // if (data["scope.userLocation"] && data["scope.userPhonenumber"]) {
-    //   navigate("/home");
-    // } else {
-    //   alert("Bạn cần cấp quyền để tiếp tục");
-    // }
-    navigate("/home");
+    if (hasInfo) {
+      navigate("/home");
+    } else {
+      setManualLoading(true);
+
+      try {
+        const data = await authorize({
+          scopes: ["scope.userLocation", "scope.userPhonenumber"],
+        });
+        if (data["scope.userLocation"] && data["scope.userPhonenumber"]) {
+          try {
+            const accessToken = await getAccessToken();
+            const phone = await getPhoneNumber();
+            const location = await getLocation();
+            const userInfo = await getUserInfo();
+            const userId = await getUserID();
+            await updateZaloInfo({
+              accessToken: accessToken,
+              avatar: userInfo.userInfo.avatar,
+              code_get_location: location.token || "",
+              code_get_phone: phone.token || "",
+              followed_oa: userInfo.userInfo.followedOA || false,
+              is_sensitive: userInfo.userInfo.isSensitive || false,
+              name: userInfo.userInfo.name,
+              zalo_app_id: "2789126480767308500",
+              zalo_device_id: "",
+              zalo_user_id: userId,
+            })
+              .unwrap()
+              .then(() => {
+                setManualLoading(false);
+                navigate("/home");
+              })
+              .catch(() => {
+                setManualLoading(false);
+
+                toast.error("Bạn cần cấp quyền để tiếp tục");
+              });
+          } catch (error) {
+            setManualLoading(false);
+
+            toast.error("Bạn cần cấp quyền để tiếp tục");
+          }
+        } else {
+          setManualLoading(false);
+          toast.error("Bạn cần cấp quyền để tiếp tục");
+        }
+      } catch (error) {
+        setManualLoading(false);
+        toast.error("Bạn cần cấp quyền để tiếp tục");
+      }
+    }
   };
 
+  const onGetUserId = useCallback(async () => {
+    const userId = await getUserID();
+
+    const isExist = await checkUserId({
+      zalo_user_id: userId,
+    });
+
+    setHasInfo(false);
+  }, []);
+  useEffect(() => {
+    onGetUserId();
+  }, [onGetUserId]);
   return (
     <Page className="relative min-h-screen overflow-hidden bg-gradient-to-b from-emerald-100 via-green-50 to-amber-50 text-neutral-900">
       <div className="pointer-events-none absolute -top-28 -left-24 h-80 w-80 rounded-full bg-emerald-200/70 blur-3xl animate-pulse" />
@@ -67,8 +143,8 @@ const SplashScreen = () => {
                     className="h-12 rounded-xl"
                   />
                   <Button
-                    disabled={!canSubmit || loading}
-                    loading={loading}
+                    disabled={!canSubmit || isLoadingRequestOtp}
+                    loading={isLoadingRequestOtp}
                     onClick={onSubmit}
                     className={`h-12 w-full rounded-xl text-white font-semibold shadow-lg active:scale-[0.99] transition
                       ${
@@ -90,6 +166,8 @@ const SplashScreen = () => {
 
                 <Button
                   onClick={onLoginWithZalo}
+                  disabled={isLoadingCheckUserId || manualLoading}
+                  loading={isLoadingCheckUserId || manualLoading}
                   className="h-12 w-full rounded-xl font-semibold bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50 shadow"
                   prefixIcon={
                     <img
@@ -101,17 +179,6 @@ const SplashScreen = () => {
                 >
                   Đăng nhập với Zalo
                 </Button>
-
-                <Box className="mt-6 grid grid-cols-2 gap-3 text-[11px] text-neutral-500">
-                  <Box className="flex items-center justify-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 ring-1 ring-neutral-200">
-                    <ShieldCheck className="h-4 w-4" />
-                    <span>Mã OTP bảo mật</span>
-                  </Box>
-                  <Box className="flex items-center justify-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 ring-1 ring-neutral-200">
-                    <Lock className="h-4 w-4" />
-                    <span>Bảo vệ dữ liệu</span>
-                  </Box>
-                </Box>
 
                 <Box className="mt-6 text-center">
                   <Text className="text-[11px] leading-snug text-neutral-500">

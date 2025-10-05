@@ -1,11 +1,14 @@
+import { useConfirmOTPMutation } from "@/redux/api/auth/auth.api";
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { Page, Box, Button, Text, Input, useNavigate } from "zmp-ui";
 
 const OtpScreen = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
-
+  const [confirmOtp, { isLoading: isLoadingConfirmOtp }] =
+    useConfirmOTPMutation();
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -25,6 +28,23 @@ const OtpScreen = () => {
         next?.focus();
       }
     }
+  };
+  const onSubmit = async () => {
+    await confirmOtp({
+      address: "",
+      name: "",
+      otp: otp.join(""),
+      serviceCode: "",
+      phone: "",
+    })
+      .unwrap()
+      .then(() => {
+        navigate("/home");
+      })
+      .catch(() => {
+        navigate("/home");
+        toast.error("Mã OTP không chính xác");
+      });
   };
 
   const code = otp.join("");
@@ -51,10 +71,16 @@ const OtpScreen = () => {
                   <Input
                     key={i}
                     id={`otp-${i}`}
-                    type="text"
+                    type="number"
                     value={d}
                     maxLength={1}
                     onChange={(e) => handleChange(e.target.value, i)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !otp[i] && i > 0) {
+                        const prev = document.getElementById(`otp-${i - 1}`);
+                        prev?.focus();
+                      }
+                    }}
                     className="w-12 h-14 text-center rounded-xl text-lg font-semibold shadow-sm focus:ring-2 focus:ring-emerald-400"
                   />
                 ))}
@@ -62,14 +88,15 @@ const OtpScreen = () => {
 
               {/* Confirm */}
               <Button
-                disabled={code.length < 6}
+                disabled={code.length < 6 || isLoadingConfirmOtp}
                 className={`h-12 w-full mt-6 rounded-xl text-white font-semibold shadow-lg active:scale-[0.99] transition
                   ${
                     code.length === 6
                       ? "bg-gradient-to-r from-emerald-500 to-amber-400 hover:opacity-95"
                       : "bg-neutral-300"
                   }`}
-                onClick={() => navigate("/home")}
+                loading={isLoadingConfirmOtp}
+                onClick={onSubmit}
               >
                 Xác nhận
               </Button>
