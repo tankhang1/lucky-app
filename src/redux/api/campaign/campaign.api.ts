@@ -1,13 +1,19 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   TGetCampaignDetailReq,
+  TGetListCampaignHistoryReq,
   TGetListCampaignReq,
   TGetListGiftReq,
+  TGetLuckyNumberReq,
+  TSearchCampaignReq,
 } from "./campaign.request";
 import {
   TGetCampaignDetailRes,
+  TGetListCampaignHistoryRes,
   TGetListCampaignRes,
   TGetListGiftRes,
+  TGetLuckyNumberRes,
+  TSearchCampaignRes,
 } from "./campaign.response";
 export const campaignApi = createApi({
   reducerPath: "campaignApi",
@@ -61,6 +67,30 @@ export const campaignApi = createApi({
         },
       }),
     }),
+    requestLuckNumber: build.mutation<TGetLuckyNumberRes, TGetLuckyNumberReq>({
+      query: (body) => ({
+        url: "/zalo/process-get-number",
+        method: "POST",
+        body,
+      }),
+    }),
+    getListCampaignHistory: build.query<
+      TGetListCampaignHistoryRes,
+      TGetListCampaignHistoryReq
+    >({
+      query: (params) => ({
+        url: "/campaign/consumer/history",
+        method: "GET",
+        params,
+      }),
+    }),
+    searchHistoryCampaign: build.query<TSearchCampaignRes, TSearchCampaignReq>({
+      query: (params) => ({
+        url: "/zalo/campaign/search",
+        method: "GET",
+        params,
+      }),
+    }),
   }),
 });
 
@@ -69,4 +99,7 @@ export const {
   useGetListExpiredCampaginQuery,
   useGetCampaignDetailQuery,
   useGetListGiftQuery,
+  useGetListCampaignHistoryQuery,
+  useRequestLuckNumberMutation,
+  useSearchHistoryCampaignQuery,
 } = campaignApi;

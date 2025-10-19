@@ -307,18 +307,20 @@ const HomeScreen = () => {
             </div>
           )}
 
-          {!others.length && !joined.length && (
-            <Box className="mt-10 grid place-items-center text-center text-neutral-600">
-              <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
-                <Text className="text-base font-semibold">
-                  Không có chương trình phù hợp
-                </Text>
-                <Text className="mt-1 text-sm">
-                  Thử điều chỉnh từ khóa hoặc bộ lọc.
-                </Text>
-              </div>
-            </Box>
-          )}
+          {!others.length &&
+            !joined.length &&
+            !(isLoadingListActiveCampaign || isLoadingListExpiredCampaign) && (
+              <Box className="mt-10 grid place-items-center text-center text-neutral-600">
+                <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
+                  <Text className="text-base font-semibold">
+                    Không có chương trình phù hợp
+                  </Text>
+                  <Text className="mt-1 text-sm">
+                    Thử điều chỉnh từ khóa hoặc bộ lọc.
+                  </Text>
+                </div>
+              </Box>
+            )}
         </div>
       </Box>
     </Page>

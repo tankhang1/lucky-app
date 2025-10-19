@@ -36,3 +36,36 @@ export type TGiftItem = {
 };
 
 export type TGetListGiftRes = TGiftItem[];
+
+export type TGetLuckyNumberRes = {
+  data: { number: number; gift_image: string; gift_name: string }[];
+  message: string;
+  status: number;
+};
+
+export type TGetListCampaignHistoryItem = {
+  number: number;
+  time: string;
+  award_name: string;
+  award_time: string;
+  gift_image: string;
+  gift_name: string;
+};
+
+export type TGetListCampaignHistoryRes = TGetListCampaignHistoryItem[];
+
+export type TSearchCampaignItem = {
+  id: number;
+  uuid: string;
+  code: string;
+  name: string;
+  time_create: string;
+  time_create_number: number;
+  time_start: string;
+  time_start_number: number;
+  time_end: string;
+  time_end_number: number;
+  time_deactive: string;
+  time_deactive_number: number;
+};
+export type TSearchCampaignRes = TSearchCampaignItem[];
