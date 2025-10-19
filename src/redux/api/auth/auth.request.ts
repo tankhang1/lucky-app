@@ -5,9 +5,6 @@ export type TOtpReq = {
 export type TConfirmOtpReq = {
   phone: string;
   otp: string;
-  address: string;
-  name: string;
-  serviceCode: string;
 };
 
 export type TLoginReq = {

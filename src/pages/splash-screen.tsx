@@ -15,30 +15,44 @@ import {
   getUserID,
   getUserInfo,
 } from "zmp-sdk";
-import { Page, Box, Button, Text, useNavigate, Input } from "zmp-ui";
+import {
+  Page,
+  Box,
+  Button,
+  Text,
+  useNavigate,
+  Input,
+  Modal,
+  Stack,
+} from "zmp-ui";
 
 const SplashScreen = () => {
   const [phone, setPhone] = useState("");
   const [hasInfo, setHasInfo] = useState(false);
   const [manualLoading, setManualLoading] = useState(false);
   const navigate = useNavigate();
+  const [messageError, setMessageError] = useState("");
   const canSubmit = useMemo(() => isValidPhone(phone), [phone]);
   const [requestOtp, { isLoading: isLoadingRequestOtp }] = useGetOTPMutation();
   const [checkUserId, { isLoading: isLoadingCheckUserId }] =
     useCheckUserIdMutation();
-  const [updateZaloInfo, { isLoading: isLoadingUpdateZaloInfo }] =
-    useUpdateZaloInfoMutation();
+  const [updateZaloInfo] = useUpdateZaloInfoMutation();
   const onSubmit = async () => {
-    await requestOtp({
-      phone,
-    })
-      .unwrap()
-      .then(() => {
-        navigate("/otp");
-      })
-      .catch(() => {
-        navigate("/otp");
-      });
+    navigate("/home");
+    // await requestOtp({
+    //   phone,
+    // })
+    //   .unwrap()
+    //   .then(() => {
+    //     navigate("/otp", {
+    //       state: {
+    //         phone,
+    //       },
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     setMessageError(error.data.message);
+    //   });
   };
   const onLoginWithZalo = async () => {
     if (hasInfo) {
@@ -57,6 +71,18 @@ const SplashScreen = () => {
             const location = await getLocation();
             const userInfo = await getUserInfo();
             const userId = await getUserID();
+            console.log("Update Info", {
+              accessToken: accessToken,
+              avatar: userInfo.userInfo.avatar,
+              code_get_location: location.token || "",
+              code_get_phone: phone.token || "",
+              followed_oa: userInfo.userInfo.followedOA || false,
+              is_sensitive: userInfo.userInfo.isSensitive || false,
+              name: userInfo.userInfo.name,
+              zalo_app_id: "2789126480767308500",
+              zalo_device_id: "",
+              zalo_user_id: userId,
+            });
             await updateZaloInfo({
               accessToken: accessToken,
               avatar: userInfo.userInfo.avatar,
@@ -74,14 +100,12 @@ const SplashScreen = () => {
                 setManualLoading(false);
                 navigate("/home");
               })
-              .catch(() => {
+              .catch((error) => {
                 setManualLoading(false);
-
-                toast.error("Bạn cần cấp quyền để tiếp tục");
+                setMessageError(error.data.message);
               });
           } catch (error) {
             setManualLoading(false);
-
             toast.error("Bạn cần cấp quyền để tiếp tục");
           }
         } else {
@@ -98,11 +122,20 @@ const SplashScreen = () => {
   const onGetUserId = useCallback(async () => {
     const userId = await getUserID();
 
-    const isExist = await checkUserId({
+    await checkUserId({
       zalo_user_id: userId,
-    });
-
-    setHasInfo(false);
+    })
+      .unwrap()
+      .then((value) => {
+        if (value.status === 0) {
+          setHasInfo(true);
+        } else {
+          setHasInfo(false);
+        }
+      })
+      .catch((error) => {
+        setHasInfo(false);
+      });
   }, []);
   useEffect(() => {
     onGetUserId();
@@ -124,7 +157,7 @@ const SplashScreen = () => {
                     alt="Mappacific"
                     className="mx-auto h-16 sm:h-20 w-auto object-contain"
                   />
-                  <Text className="text-lg sm:text-2xl font-semibold tracking-tight">
+                  <Text className="text-lg sm:text-2xl tracking-tight font-bold">
                     Mappacific Portal
                   </Text>
                   <Text className="text-xs text-neutral-500">
@@ -210,6 +243,25 @@ const SplashScreen = () => {
           </Box>
         </Box>
       </Box>
+      <Modal
+        visible={messageError !== ""}
+        onClose={() => setMessageError("")}
+        maskClosable
+      >
+        <Stack space="10px">
+          <Box
+            dangerouslySetInnerHTML={{
+              __html: messageError,
+            }}
+          />
+          <Button
+            className="bg-green-600 font-bold hover:bg-green-500"
+            onClick={() => setMessageError("")}
+          >
+            Xác nhận
+          </Button>
+        </Stack>
+      </Modal>
     </Page>
   );
 };

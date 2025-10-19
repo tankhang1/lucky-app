@@ -1,10 +1,24 @@
 import { useConfirmOTPMutation } from "@/redux/api/auth/auth.api";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Page, Box, Button, Text, Input, useNavigate } from "zmp-ui";
+import {
+  Page,
+  Box,
+  Button,
+  Text,
+  Input,
+  useNavigate,
+  useLocation,
+  Modal,
+  Stack,
+} from "zmp-ui";
 
 const OtpScreen = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const phone = location.state?.phone;
+  const [messageError, setMessageError] = useState("");
+
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
   const [confirmOtp, { isLoading: isLoadingConfirmOtp }] =
@@ -31,19 +45,15 @@ const OtpScreen = () => {
   };
   const onSubmit = async () => {
     await confirmOtp({
-      address: "",
-      name: "",
       otp: otp.join(""),
-      serviceCode: "",
-      phone: "",
+      phone: phone,
     })
       .unwrap()
       .then(() => {
         navigate("/home");
       })
-      .catch(() => {
-        navigate("/home");
-        toast.error("Mã OTP không chính xác");
+      .catch((error) => {
+        setMessageError(error.data.message);
       });
   };
 
@@ -71,7 +81,7 @@ const OtpScreen = () => {
                   <Input
                     key={i}
                     id={`otp-${i}`}
-                    type="number"
+                    type="text"
                     value={d}
                     maxLength={1}
                     onChange={(e) => handleChange(e.target.value, i)}
@@ -122,6 +132,25 @@ const OtpScreen = () => {
           © 2025 Mappacific Singapore. All rights reserved.
         </Box>
       </Box>
+      <Modal
+        visible={messageError !== ""}
+        onClose={() => setMessageError("")}
+        maskClosable
+      >
+        <Stack space="10px">
+          <Box
+            dangerouslySetInnerHTML={{
+              __html: messageError,
+            }}
+          />
+          <Button
+            className="bg-green-600 font-bold hover:bg-green-500"
+            onClick={() => setMessageError("")}
+          >
+            Xác nhận
+          </Button>
+        </Stack>
+      </Modal>
     </Page>
   );
 };

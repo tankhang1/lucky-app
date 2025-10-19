@@ -1,9 +1,21 @@
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import LuckyResultModal from "@/components/lucky-result-modal";
-import { CalendarRange, Sparkles } from "lucide-react";
+import {
+  useGetCampaignDetailQuery,
+  useGetListGiftQuery,
+} from "@/redux/api/campaign/campaign.api";
+import {
+  CalendarRange,
+  ChevronDown,
+  ChevronUp,
+  FileDown,
+  FileText,
+  Sparkles,
+} from "lucide-react";
 import { useMemo, useState } from "react";
-import { Page, Box, Text, Button, Header } from "zmp-ui";
+import { openDocument } from "zmp-sdk";
+import { Page, Box, Text, Button, Header, Spinner } from "zmp-ui";
 
 type Prize = {
   id: string;
@@ -33,11 +45,11 @@ type Program = {
   description?: string;
   rules?: string[];
   status: "open" | "closed" | "upcoming";
-  startAt: string;
-  endAt: string;
+  time: string;
   banner?: string;
   prizes: Prize[];
   joined?: boolean;
+  pdf: string;
 };
 
 const maskPhone = (p: string) =>
@@ -45,7 +57,6 @@ const maskPhone = (p: string) =>
 
 const TABS = [
   { key: "prizes", label: "Giải thưởng" },
-  { key: "participants", label: "Người tham gia" },
   { key: "results", label: "Kết quả" },
 ] as const;
 type TabKey = (typeof TABS)[number]["key"];
@@ -71,91 +82,133 @@ const StatusPill = ({ status }: { status: Program["status"] }) => {
   );
 };
 
-const data = {
-  program: {
-    id: "prog_001",
-    title: "Tết 2025 – Lì xì vui vẻ",
-    code: "TET2025",
-    slogan: "Chúc bạn một năm mới an khang thịnh vượng",
-    description:
-      "Chương trình tri ân khách hàng dịp tết 2025. Tham gia quay số nhận e-voucher và quà Tết hấp dẫn.",
-    rules: [
-      "Mỗi số điện thoại được tham gia theo số lượt quay được cấp.",
-      "Giải thưởng không quy đổi thành tiền mặt.",
-    ],
-    status: "open",
-    startAt: "2025-12-20T08:00:00+07:00",
-    endAt: "2026-01-05T23:59:59+07:00",
-    banner:
-      "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1600&auto=format&fit=crop",
-    joined: true,
-    prizes: [
-      {
-        id: "p1",
-        label: "Giải Nhất",
-        rewardName: "iPhone 15 128GB",
-        count: 1,
-        image:
-          "https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop",
-      },
-      {
-        id: "p2",
-        label: "Giải Nhì",
-        rewardName: "Tai nghe AirPods",
-        count: 3,
-        image:
-          "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200&auto=format&fit=crop",
-      },
-      {
-        id: "p3",
-        label: "Giải Ba",
-        rewardName: "Voucher 200.000đ",
-        count: 5,
-        image:
-          "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop",
-      },
-    ],
-  } as Program,
-  participants: [
-    {
-      id: "u1",
-      name: "Nguyễn An",
-      phone: "+84912345678",
-      joinedAt: "2025-09-21T09:10:00+07:00",
-    },
-    {
-      id: "u2",
-      name: "Trần Bình",
-      phone: "+84876543210",
-      joinedAt: "2025-09-21T10:05:00+07:00",
-    },
-    {
-      id: "u3",
-      name: "Lê C",
-      phone: "+84987654321",
-      joinedAt: "2025-09-21T11:20:00+07:00",
-    },
-  ] as Participant[],
-  results: [
-    {
-      drawId: "draw_20250921_0001",
-      prizeId: "p3",
-      prizeLabel: "Giải Ba",
-      winner: { name: "Nguyễn An", phone: "+84912345678" },
-      time: "2025-09-21T14:05:09+07:00",
-    },
-    {
-      drawId: "draw_20250921_0002",
-      prizeId: "p3",
-      prizeLabel: "Giải Ba",
-      winner: { name: "Trần Bình", phone: "+84876543210" },
-      time: "2025-09-21T14:06:40+07:00",
-    },
-  ] as ResultItem[],
+// const data = {
+//   program: {
+//     id: "prog_001",
+//     title: "Tết 2025 – Lì xì vui vẻ",
+//     code: "TET2025",
+//     slogan: "Chúc bạn một năm mới an khang thịnh vượng",
+//     description:
+//       "Chương trình tri ân khách hàng dịp tết 2025. Tham gia quay số nhận e-voucher và quà Tết hấp dẫn.",
+//     rules: [
+//       "Mỗi số điện thoại được tham gia theo số lượt quay được cấp.",
+//       "Giải thưởng không quy đổi thành tiền mặt.",
+//     ],
+//     status: "open",
+//     startAt: "2025-12-20T08:00:00+07:00",
+//     endAt: "2026-01-05T23:59:59+07:00",
+//     banner:
+//       "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1600&auto=format&fit=crop",
+//     joined: true,
+//     prizes: [
+//       {
+//         id: "p1",
+//         label: "Giải Nhất",
+//         rewardName: "iPhone 15 128GB",
+//         count: 1,
+//         image:
+//           "https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop",
+//       },
+//       {
+//         id: "p2",
+//         label: "Giải Nhì",
+//         rewardName: "Tai nghe AirPods",
+//         count: 3,
+//         image:
+//           "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200&auto=format&fit=crop",
+//       },
+//       {
+//         id: "p3",
+//         label: "Giải Ba",
+//         rewardName: "Voucher 200.000đ",
+//         count: 5,
+//         image:
+//           "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop",
+//       },
+//     ],
+//   } as Program,
+//   participants: [
+//     {
+//       id: "u1",
+//       name: "Nguyễn An",
+//       phone: "+84912345678",
+//       joinedAt: "2025-09-21T09:10:00+07:00",
+//     },
+//     {
+//       id: "u2",
+//       name: "Trần Bình",
+//       phone: "+84876543210",
+//       joinedAt: "2025-09-21T10:05:00+07:00",
+//     },
+//     {
+//       id: "u3",
+//       name: "Lê C",
+//       phone: "+84987654321",
+//       joinedAt: "2025-09-21T11:20:00+07:00",
+//     },
+//   ] as Participant[],
+//   results: [
+//     {
+//       drawId: "draw_20250921_0001",
+//       prizeId: "p3",
+//       prizeLabel: "Giải Ba",
+//       winner: { name: "Nguyễn An", phone: "+84912345678" },
+//       time: "2025-09-21T14:05:09+07:00",
+//     },
+//     {
+//       drawId: "draw_20250921_0002",
+//       prizeId: "p3",
+//       prizeLabel: "Giải Ba",
+//       winner: { name: "Trần Bình", phone: "+84876543210" },
+//       time: "2025-09-21T14:06:40+07:00",
+//     },
+//   ] as ResultItem[],
+// };
+type TProgramDetail = {
+  program: Program;
+  participants: Participant[];
+  results: ResultItem[];
 };
-
 const ProgramDetailScreen = () => {
+  const { data: programDetail, isLoading: isLoadingProgramDetail } =
+    useGetCampaignDetailQuery({
+      c: "tungbunghethu",
+      p: "84356955354",
+    });
+  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery({
+    c: "tungbunghethu",
+  });
+  //@ts-expect-error no check
+  const data: TProgramDetail = useMemo(
+    () => ({
+      program: {
+        id: programDetail?.code || "",
+        status: programDetail?.status === 1 ? "open" : "closed",
+        prizes: [
+          ...(listGift?.map((gift) => ({
+            id: gift.id || -1,
+            label: gift.gift_name || "",
+            rewardName: gift.award_name || "",
+            count: +gift.limits || 0,
+            image: gift.gift_image || "",
+          })) || []),
+        ],
+        time: programDetail?.time || "",
+        title: programDetail?.name || "",
+        banner: programDetail?.banner || "",
+        code: programDetail?.code || "",
+        description: programDetail?.description || "",
+        joined: programDetail?.joined || 0,
+        slogan: "Tung bung he thu",
+        pdf: programDetail?.pdf,
+      },
+      participants: [],
+      results: [],
+    }),
+    [programDetail]
+  );
   const { program, participants, results } = data;
+  const [openedMore, setOpenedMore] = useState(false);
   const [tab, setTab] = useState<TabKey>("prizes");
   const [openedLucky, setOpenedLucky] = useState(false);
   const [openedListLucky, setOpenedListLucky] = useState(false);
@@ -176,7 +229,13 @@ const ProgramDetailScreen = () => {
     () => program.prizes.reduce((s, p) => s + p.count, 0),
     [program]
   );
-
+  const openPDF = () => {
+    openDocument({
+      url: program?.pdf,
+      title: "Thông tin chi tiết",
+      download: true,
+    });
+  };
   const onRandomSingle = () => setOpenedLucky(true);
   const onRandomAll = () => setOpenedListLucky(true);
 
@@ -215,42 +274,83 @@ const ProgramDetailScreen = () => {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
-                <CalendarRange className="h-4 w-4" />
-                {new Date(program.startAt).toLocaleDateString()} —{" "}
-                {new Date(program.endAt).toLocaleDateString()}
-              </span>
-              {!!program.slogan && (
-                <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
-                  <Sparkles className="h-4 w-4 text-amber-500" />
-                  {program.slogan}
-                </span>
+          {isLoadingProgramDetail ? (
+            <div className="flex justify-center items-center">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="p-4 sm:p-5">
+              <div className="flex justify-between items-start">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
+                    <CalendarRange className="h-4 w-4" />
+                    {program.time}
+                  </span>
+                  {!!program.slogan && (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      {program.slogan}
+                    </span>
+                  )}
+                  {program?.joined ? (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-600/90 text-white px-3 py-1 text-xs shadow">
+                      Đã tham gia
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-yellow-400 text-orange-400 px-3 py-1 text-xs shadow">
+                      Chưa tham gia
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={openPDF}
+                  className="inline-flex items-center gap-1 rounded-md bg-white border text-white p-2 text-[11px] font-medium  shadow-sm"
+                >
+                  <FileText className="w-4 h-4 text-black" />
+                </button>
+              </div>
+
+              {!!program.description && (
+                <div>
+                  <p
+                    className={`mt-4 text-[15px] leading-6 text-neutral-900 ${
+                      openedMore ? "line-clamp-none" : "line-clamp-6"
+                    }`}
+                    dangerouslySetInnerHTML={{
+                      __html: program.description || "",
+                    }}
+                  ></p>
+                  {!openedMore ? (
+                    <div
+                      onClick={() => setOpenedMore(true)}
+                      className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
+                    >
+                      <p className="text-sm">Xem thêm</p>
+                      <ChevronDown size={14} />
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => setOpenedMore(false)}
+                      className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
+                    >
+                      <p className="text-sm">Rút gọn</p>
+                      <ChevronUp size={14} />
+                    </div>
+                  )}
+                </div>
               )}
-              {program.joined && (
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-600/90 text-white px-3 py-1 text-xs shadow">
-                  Đã tham gia
-                </span>
+              {!!program.rules?.length && (
+                <ul className="mt-3 space-y-2 text-[15px] text-neutral-900">
+                  {program.rules.map((r, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-neutral-700" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
-
-            {!!program.description && (
-              <p className="mt-4 text-[15px] leading-6 text-neutral-900">
-                {program.description}
-              </p>
-            )}
-            {!!program.rules?.length && (
-              <ul className="mt-3 space-y-2 text-[15px] text-neutral-900">
-                {program.rules.map((r, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-neutral-700" />
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          )}
         </div>
       </Box>
 
@@ -271,102 +371,73 @@ const ProgramDetailScreen = () => {
           ))}
         </div>
 
-        {tab === "prizes" && (
-          <div className="mt-5 grid gap-4">
-            {program.prizes.map((p) => (
-              <div
-                key={p.id}
-                className="rounded-xl p-[1.5px] bg-gradient-to-br from-emerald-300/50 via-amber-200/50 to-white/60"
-              >
-                <div className="rounded-xl h-36 bg-white/80 backdrop-blur-md shadow-md ring-1 ring-white/60 overflow-hidden">
-                  <div className="flex">
-                    <div className="relative">
-                      {p.image ? (
-                        <img
-                          src={p.image}
-                          alt={p.rewardName}
-                          className="h-36 w-44 object-cover"
-                        />
-                      ) : (
-                        <div className="h-36 w-44 bg-neutral-100" />
-                      )}
-                      <div className="absolute left-0 top-3 pl-3">
-                        <span className="inline-block rounded-r-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
-                          {p.label}
-                        </span>
+        {tab === "prizes" &&
+          (isLoadingListGift ? (
+            <div className="flex justify-center items-center">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="mt-5 grid gap-4">
+              {program.prizes.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-xl p-[1.5px] bg-gradient-to-br from-emerald-300/50 via-amber-200/50 to-white/60"
+                >
+                  <div className="rounded-xl h-36 bg-white/80 backdrop-blur-md shadow-md ring-1 ring-white/60 overflow-hidden">
+                    <div className="flex">
+                      <div className="relative">
+                        {p.image ? (
+                          <img
+                            src={p.image}
+                            alt={p.rewardName}
+                            className="h-36 w-44 object-cover"
+                          />
+                        ) : (
+                          <div className="h-36 w-44 bg-neutral-100" />
+                        )}
+                        <div className="absolute left-0 top-3 pl-3">
+                          <span className="inline-block rounded-r-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
+                            {p.label}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="text-[11px] text-neutral-500">
-                        Mã: {p.id}
-                      </div>
-                      <div className="mt-1">
-                        <Text className="text-xs text-neutral-500">
-                          Tên giải thưởng
-                        </Text>
-                        <Text className="text-base font-semibold">
-                          {p.rewardName}
-                        </Text>
-                      </div>
-                      <div className="mt-2">
-                        <Text className="text-xs text-neutral-500">
-                          Số lượng
-                        </Text>
-                        <Text className="text-base font-semibold">
-                          {p.count}
-                        </Text>
+                      <div className="p-4">
+                        <div className="text-[11px] text-neutral-500">
+                          Mã: {p.id}
+                        </div>
+                        <div className="mt-1">
+                          <Text className="text-xs text-neutral-500">
+                            Tên giải thưởng
+                          </Text>
+                          <Text className="text-base font-semibold">
+                            {p.rewardName}
+                          </Text>
+                        </div>
+                        <div className="mt-2">
+                          <Text className="text-xs text-neutral-500">
+                            Số lượng
+                          </Text>
+                          <Text className="text-base font-semibold">
+                            {p.count}
+                          </Text>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {!program.prizes.length && (
-              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
-                <Text className="font-semibold">Chưa cấu hình giải thưởng</Text>
-                <Text className="mt-1 text-sm">
-                  Thêm giải để bắt đầu chương trình.
-                </Text>
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === "participants" && (
-          <div className="mt-5 grid gap-3">
-            {data.participants.map((u) => (
-              <div
-                key={u.id}
-                className="flex items-center justify-between rounded-2xl bg-white/80 backdrop-blur p-4 shadow-sm ring-1 ring-white/60"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-200 text-emerald-900 text-sm font-bold">
-                    {(u.name || "Ẩn danh").charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <Text className="text-sm font-semibold">
-                      {u.name || "Ẩn danh"}
-                    </Text>
-                    <div className="text-xs text-neutral-500">
-                      {maskPhone(u.phone)}
-                    </div>
-                  </div>
+              ))}
+              {!program.prizes.length && (
+                <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
+                  <Text className="font-semibold">
+                    Chưa cấu hình giải thưởng
+                  </Text>
+                  <Text className="mt-1 text-sm">
+                    Thêm giải để bắt đầu chương trình.
+                  </Text>
                 </div>
-                <span className="rounded-full bg-white px-3 py-1 text-xs text-neutral-600 border border-neutral-200">
-                  {new Date(u.joinedAt).toLocaleString()}
-                </span>
-              </div>
-            ))}
-            {!data.participants.length && (
-              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
-                <Text className="font-semibold">Chưa có người tham gia</Text>
-                <Text className="mt-1 text-sm">
-                  Mời người dùng tham gia để bắt đầu quay.
-                </Text>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          ))}
 
         {tab === "results" && (
           <div className="mt-5 grid gap-4">
@@ -408,7 +479,7 @@ const ProgramDetailScreen = () => {
           <div className="flex-1">
             <Text className="text-xs text-neutral-600">Số lượt quay</Text>
             <Text className="text-lg font-bold">
-              {1}/{totalPrizeQty}
+              {programDetail?.number_get}/{programDetail?.number_limit}
             </Text>
           </div>
           <Button

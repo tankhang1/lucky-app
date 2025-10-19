@@ -1,13 +1,18 @@
+import {
+  useGetListActiveCampaginQuery,
+  useGetListExpiredCampaginQuery,
+} from "@/redux/api/campaign/campaign.api";
+import { TCampaginItem } from "@/redux/api/campaign/campaign.response";
 import { useMemo, useState } from "react";
-import { Page, Box, Input, Text, Icon, useNavigate } from "zmp-ui";
+import { Page, Box, Input, Text, Icon, useNavigate, Spinner } from "zmp-ui";
 
 type Program = {
   id: string;
   title: string;
   description: string;
   status: "open" | "closed" | "upcoming" | "joined";
-  startAt: string;
-  endAt: string;
+  time: string;
+  joined: number;
   participants: number;
   thumbnail?: string;
 };
@@ -23,54 +28,7 @@ const TABS: Array<{ key: "all" | Program["status"]; label: string }> = [
   { key: "all", label: "Tất cả" },
   { key: "open", label: "Đang diễn ra" },
   { key: "closed", label: "Kết thúc" },
-  { key: "joined", label: "Đã tham gia" },
-];
-
-const DATA: Program[] = [
-  {
-    id: "p1",
-    title: "Lucky Draw Mùa Vụ",
-    description: "Chương trình quay số trúng thưởng dành cho khách hàng",
-    status: "open",
-    startAt: "2025-09-20T08:00:00+07:00",
-    endAt: "2025-09-25T23:59:59+07:00",
-    participants: 128,
-    thumbnail:
-      "https://brandboost.vn/wp-content/uploads/2024/07/Ung-dung-cua-lucky-draw-CO-WELL-Asia.jpg",
-  },
-  {
-    id: "p2",
-    title: "Tri Ân Khách Hàng",
-    description: "Chương trình tri ân khách hàng thân thiết",
-    status: "upcoming",
-    startAt: "2025-10-01T08:00:00+07:00",
-    endAt: "2025-10-07T23:59:59+07:00",
-    participants: 0,
-    thumbnail:
-      "https://dulichnewtour.vn/ckfinder/images/Tours/triankhachhang/tri-an-khach-hang%20(5).jpg",
-  },
-  {
-    id: "p3",
-    title: "Quà Tặng Tháng 8",
-    description: "Chương trình quà tặng đặc biệt nhân dịp Quốc Khánh",
-    status: "closed",
-    startAt: "2025-08-01T08:00:00+07:00",
-    endAt: "2025-08-10T23:59:59+07:00",
-    participants: 342,
-    thumbnail:
-      "https://inogift.vn/wp-content/uploads/2025/05/qua-tang-cach-mang-thang-8-va-qua-tang-quoc-khanh-2-9.jpg",
-  },
-  {
-    id: "p4",
-    title: "Chương Trình Mùa Xuân",
-    description: "Chương trình đặc biệt chào đón mùa xuân 2025",
-    status: "joined",
-    startAt: "2025-01-15T08:00:00+07:00",
-    endAt: "2025-01-25T23:59:59+07:00",
-    participants: 256,
-    thumbnail:
-      "https://media.vov.vn/sites/default/files/styles/large/public/2025-04/mua_xuan_thong_nhat_3.jpg",
-  },
+  // { key: "joined", label: "Đã tham gia" },
 ];
 
 const badge = (s: Program["status"]) =>
@@ -124,9 +82,6 @@ const Card = ({
           <span className={`h-1.5 w-1.5 rounded-full ${dotColor(p.status)}`} />
           {STATUS_LABEL[p.status]}
         </span>
-        <span className="absolute right-3 bottom-3 rounded-full bg-white/90 px-2.5 py-1 text-xs text-neutral-700 backdrop-blur">
-          {p.participants} người
-        </span>
       </div>
 
       <div className="p-4 h-56 flex flex-col">
@@ -135,12 +90,9 @@ const Card = ({
             {p.title}
           </Text>
           <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-600">
-            <span className="rounded-md bg-neutral-50 px-2 py-1">
-              {new Date(p.startAt).toLocaleDateString()} –{" "}
-              {new Date(p.endAt).toLocaleDateString()}
-            </span>
+            <span className="rounded-md bg-neutral-50 px-2 py-1">{p.time}</span>
           </div>
-          <Text className="mt-2 text-start text-sm text-neutral-700 line-clamp-2">
+          <Text className="mt-2 text-start text-xs text-neutral-700 line-clamp-4 whitespace-pre-line">
             {p.description}
           </Text>
         </div>
@@ -167,22 +119,59 @@ const Card = ({
   </button>
 );
 
+const dtoCampaign = (value: TCampaginItem): Program => {
+  return {
+    description: value.description_short,
+    time: value.time,
+    id: value.code,
+    participants: 0,
+    status:
+      value.status === 1 ? "open" : value.status === 2 ? "closed" : "upcoming",
+    joined: value.joined,
+    title: value.name,
+    thumbnail: value.banner,
+  };
+};
+
 const HomeScreen = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [tab, setTab] = useState<"all" | Program["status"]>("all");
-
+  const [tab, setTab] = useState<"all" | Program["status"]>("open");
+  const { data: listActiveCampaigns, isLoading: isLoadingListActiveCampaign } =
+    useGetListActiveCampaginQuery({
+      p: "84356955354",
+    });
+  const {
+    data: listExpiredCampaigns,
+    isLoading: isLoadingListExpiredCampaign,
+  } = useGetListExpiredCampaginQuery({
+    p: "84356955354",
+  });
+  const listAllCapaigns = useMemo(
+    () => [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
+    [listActiveCampaigns, listExpiredCampaigns]
+  );
+  const mapDtoData = useMemo(
+    () =>
+      (tab === "open"
+        ? listActiveCampaigns
+        : tab === "closed"
+        ? listExpiredCampaigns
+        : listAllCapaigns
+      )?.map((item) => dtoCampaign(item)) || [],
+    [listActiveCampaigns, listExpiredCampaigns]
+  );
   const counts = useMemo(() => {
     const c = {
-      all: DATA.length,
+      all: mapDtoData.length,
       open: 0,
       upcoming: 0,
       closed: 0,
       joined: 0,
     } as Record<"all" | Program["status"], number>;
-    DATA.forEach((p) => (c[p.status] = (c[p.status] || 0) + 1));
+    mapDtoData.forEach((p) => (c[p.status] = (c[p.status] || 0) + 1));
     return c;
-  }, []);
+  }, [mapDtoData]);
 
   const list = useMemo(() => {
     const byQ = (p: Program) =>
@@ -191,12 +180,12 @@ const HomeScreen = () => {
       p.description.toLowerCase().includes(q.toLowerCase()) ||
       STATUS_LABEL[p.status].toLowerCase().includes(q.toLowerCase());
     const byTab = (p: Program) => tab === "all" || p.status === tab;
-    return DATA.filter((p) => byQ(p) && byTab(p));
-  }, [q, tab]);
+    return mapDtoData.filter((p) => byQ(p) && byTab(p));
+  }, [q, tab, mapDtoData]);
 
-  const joined = useMemo(() => DATA.filter((p) => p.status === "joined"), []);
+  const joined = useMemo(() => list.filter((p) => p.joined === 1), [list]);
   const others = useMemo(
-    () => list.filter((p) => p.status !== "joined"),
+    () => list.filter((p) => (tab === "all" ? p.joined === 0 : p)),
     [list]
   );
 
@@ -224,6 +213,7 @@ const HomeScreen = () => {
                   <Icon icon="zi-search" className="text-neutral-400" />
                 </Box>
               }
+              clearable
               className="!bg-neutral-50 !border-0 !rounded-2xl"
             />
           </div>
@@ -300,16 +290,22 @@ const HomeScreen = () => {
             </Text>
           </div>
 
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar">
-            {others.map((p) => (
-              <Card
-                key={p.id}
-                p={p}
-                onClick={() => onProgramDetail(p.id)}
-                className="snap-start shrink-0 w-[85%] md:w-[60%]"
-              />
-            ))}
-          </div>
+          {isLoadingListActiveCampaign || isLoadingListExpiredCampaign ? (
+            <div className="flex justify-center items-center">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar">
+              {others.map((p) => (
+                <Card
+                  key={p.id}
+                  p={p}
+                  onClick={() => onProgramDetail(p.id)}
+                  className="snap-start shrink-0 w-[85%] md:w-[60%]"
+                />
+              ))}
+            </div>
+          )}
 
           {!others.length && !joined.length && (
             <Box className="mt-10 grid place-items-center text-center text-neutral-600">
