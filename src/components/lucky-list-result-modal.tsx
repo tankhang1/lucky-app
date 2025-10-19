@@ -54,7 +54,7 @@ export default function ListLuckyResultModal({
         setRevealed(false);
       }}
       maskClosable
-      modalClassName="bg-transparent"
+      modalClassName="bg-transparent w-full"
     >
       <Box>
         <Box className="mx-auto w-full max-w-md rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden">
@@ -67,53 +67,65 @@ export default function ListLuckyResultModal({
               Kết quả quay số
             </Text>
 
-            <Box
-              className={`mt-4 max-h-60 overflow-x-auto transition-all duration-500 grid grid-cols-3 justify-center ${
-                revealed ? "gap-3" : "gap-0"
-              }`}
-            >
-              {["1323", "44312", "12312", "3123", "123", "123123", "4234"].map(
-                (n, i) => (
-                  <Box
-                    key={i}
-                    className={`text-xl font-semibold text-amber-700 transition-all duration-500 ${
-                      n === "44312" ? "font-black" : ""
-                    }`}
-                  >
-                    {n}
-                  </Box>
-                )
-              )}
+            <Box className="mt-4">
+              {/* limit height to ~300px or fit your design */}
+              <Box className="max-h-[300px] overflow-y-auto rounded-xl ring-1 ring-gray-100">
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      <th className="w-24 px-3 py-2 text-left text-xs font-medium text-gray-500">
+                        Số may mắn
+                      </th>
+                      <th className="w-40 px-3 py-2 text-left text-xs font-medium text-gray-500">
+                        Giải thưởng
+                      </th>
+                      <th className="w-28 px-3 py-2 text-left text-xs font-medium text-gray-500">
+                        Hình
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {queue.map((item, idx) => {
+                      const isNewest = idx === 0 && revealed;
+                      return (
+                        <tr
+                          key={idx}
+                          className={isNewest ? "bg-amber-50/60" : ""}
+                        >
+                          <td className="w-24 px-3 py-2">
+                            <span className="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-sm font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+                              {item.targetNumber}
+                            </span>
+                          </td>
+                          <td className="w-40 px-3 py-2 text-sm text-gray-800 truncate">
+                            {item.prizeLabel}
+                          </td>
+                          <td className="w-44 px-3 py-2">
+                            {item.prizeImage ? (
+                              <img
+                                src={item.prizeImage}
+                                className="w-24 rounded-sm ring-1 ring-amber-200 object-cover mx-auto"
+                              />
+                            ) : (
+                              <Icon
+                                icon="zi-photo"
+                                className="text-lg text-gray-300 mx-auto"
+                              />
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </Box>
             </Box>
             {queue[0].programTitle && (
               <Text className="mt-1 text-xs text-gray-500">
                 {queue[0].programTitle}
               </Text>
             )}
-            {revealed && (
-              <Box
-                className={`mt-5 flex flex-row items-center justify-center gap-4  transition-all duration-500`}
-              >
-                {queue[0].prizeImage ? (
-                  <img
-                    src={queue[0].prizeImage}
-                    className="ring-2 ring-amber-400 w-16 h-16 rounded-sm"
-                  />
-                ) : (
-                  <Icon icon="zi-photo" className="text-4xl text-amber-400" />
-                )}
-                <Box>
-                  <Text className="text-left text-sm font-semibold text-gray-700">
-                    {queue[0].prizeLabel}
-                  </Text>
-                  {queue[0].code && (
-                    <Text className="text-left text-xs text-gray-500">
-                      Mã lượt: {queue[0].code} • {timeText}
-                    </Text>
-                  )}
-                </Box>
-              </Box>
-            )}
+
             <Box className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
               <Box className="flex items-center justify-center gap-2">
                 <Icon icon="zi-user" className="text-gray-500 text-base" />

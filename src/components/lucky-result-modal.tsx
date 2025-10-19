@@ -59,9 +59,15 @@ export default function LuckyResultModal({
           </Box>
 
           <Box className="pt-14 px-5 pb-4 text-center">
-            <Text className="text-xs uppercase tracking-widest text-amber-600">
-              Kết quả quay số
-            </Text>
+            <Box className="rounded-xl bg-gray-50 px-4 py-3 mb-2">
+              <Box className="flex items-center justify-center gap-2">
+                <Icon icon="zi-user" className="text-gray-500 text-base" />
+                <Text className="text-sm">
+                  {result.winnerName ? `${result.winnerName} • ` : ""}
+                  {maskPhone(result.winnerPhone)}
+                </Text>
+              </Box>
+            </Box>
 
             <RotateLuckyNumber
               targetNumber={result.targetNumber}
@@ -78,10 +84,9 @@ export default function LuckyResultModal({
                 className={`mt-5 flex items-center justify-center gap-3  transition-all duration-500`}
               >
                 {result.prizeImage ? (
-                  <Avatar
+                  <img
                     src={result.prizeImage}
-                    size={56}
-                    className="ring-2 ring-amber-400"
+                    className="ring-2 w-16 rounded-sm object-cover ring-amber-400"
                   />
                 ) : (
                   <Box className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center ring-2 ring-amber-400">
@@ -100,16 +105,6 @@ export default function LuckyResultModal({
                 </Box>
               </Box>
             )}
-
-            <Box className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-              <Box className="flex items-center justify-center gap-2">
-                <Icon icon="zi-user" className="text-gray-500 text-base" />
-                <Text className="text-sm">
-                  {result.winnerName ? `${result.winnerName} • ` : ""}
-                  {maskPhone(result.winnerPhone)}
-                </Text>
-              </Box>
-            </Box>
 
             <Box className="mt-5 grid grid-cols-2 gap-3">
               <Button
