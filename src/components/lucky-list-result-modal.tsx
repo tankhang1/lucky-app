@@ -31,11 +31,7 @@ export default function ListLuckyResultModal({
   queue,
 }: Props) {
   const [revealed, setRevealed] = useState(false);
-  const timeText = useMemo(() => {
-    if (!queue[0].time) return new Date().toLocaleString();
-    const d = new Date(queue[0].time);
-    return d.toLocaleString();
-  }, [queue]);
+
   useEffect(() => {
     if (!openedLucky) {
       setRevealed(false);
@@ -98,7 +94,7 @@ export default function ListLuckyResultModal({
                             </span>
                           </td>
                           <td className="w-40 px-3 py-2 text-sm text-gray-800 truncate">
-                            {item.prizeLabel}
+                            {item?.prizeLabel || "Đợi kết quả"}
                           </td>
                           <td className="w-44 px-3 py-2">
                             {item.prizeImage ? (
@@ -120,21 +116,11 @@ export default function ListLuckyResultModal({
                 </table>
               </Box>
             </Box>
-            {queue[0].programTitle && (
+            {queue[0]?.programTitle && (
               <Text className="mt-1 text-xs text-gray-500">
-                {queue[0].programTitle}
+                {queue[0]?.programTitle}
               </Text>
             )}
-
-            <Box className="mt-4 rounded-xl bg-gray-50 px-4 py-3">
-              <Box className="flex items-center justify-center gap-2">
-                <Icon icon="zi-user" className="text-gray-500 text-base" />
-                <Text className="text-sm">
-                  {queue[0].winnerName ? `${queue[0].winnerName} • ` : ""}
-                  {maskPhone(queue[0].winnerPhone)}
-                </Text>
-              </Box>
-            </Box>
 
             <Box className="mt-5 grid grid-cols-2 gap-3">
               <Button

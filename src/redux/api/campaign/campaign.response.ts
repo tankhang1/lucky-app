@@ -36,9 +36,13 @@ export type TGiftItem = {
 };
 
 export type TGetListGiftRes = TGiftItem[];
-
+export type TLuckResultItem = {
+  number: number;
+  gift_image: string;
+  gift_name: string;
+};
 export type TGetLuckyNumberRes = {
-  data: { number: number; gift_image: string; gift_name: string }[];
+  data: TLuckResultItem[];
   message: string;
   status: number;
 };
@@ -46,6 +50,7 @@ export type TGetLuckyNumberRes = {
 export type TGetListCampaignHistoryItem = {
   number: number;
   time: string;
+  name: string;
   award_name: string;
   award_time: string;
   gift_image: string;

@@ -4,6 +4,7 @@ import { Modal, Box, Text, Button, Icon, Avatar } from "zmp-ui";
 import RotateLuckyNumber from "./rotate-lucky-number";
 import Gift from "../assets/gift.png";
 import Confetti from "react-confetti-boom";
+import { useRequestLuckNumberMutation } from "@/redux/api/campaign/campaign.api";
 type LuckyResult = {
   targetNumber: number;
   prizeLabel: string;
@@ -31,15 +32,18 @@ export default function LuckyResultModal({
   onContinue,
   result,
 }: Props) {
+  const [toggleContinue, setToggleContinue] = useState(true);
   const [revealed, setRevealed] = useState(false);
   const timeText = useMemo(() => {
     if (!result.time) return new Date().toLocaleString();
     const d = new Date(result.time);
     return d.toLocaleString();
   }, [result.time]);
+
   useEffect(() => {
     if (!openedLucky) {
       setRevealed(false);
+      setToggleContinue(true);
     }
   }, [openedLucky]);
   return (
@@ -59,27 +63,19 @@ export default function LuckyResultModal({
           </Box>
 
           <Box className="pt-14 px-5 pb-4 text-center">
-            <Box className="rounded-xl bg-gray-50 px-4 py-3 mb-2">
-              <Box className="flex items-center justify-center gap-2">
-                <Icon icon="zi-user" className="text-gray-500 text-base" />
-                <Text className="text-sm">
-                  {result.winnerName ? `${result.winnerName} • ` : ""}
-                  {maskPhone(result.winnerPhone)}
-                </Text>
-              </Box>
-            </Box>
-
-            <RotateLuckyNumber
-              targetNumber={result.targetNumber}
-              openedLucky={openedLucky}
-              onComplete={() => setRevealed(true)}
-            />
+            {toggleContinue && (
+              <RotateLuckyNumber
+                targetNumber={result.targetNumber}
+                openedLucky={openedLucky}
+                onComplete={() => setRevealed(true)}
+              />
+            )}
             {result.programTitle && (
               <Text className="mt-1 text-xs text-gray-500">
                 {result.programTitle}
               </Text>
             )}
-            {revealed && (
+            {revealed && result?.prizeImage && (
               <Box
                 className={`mt-5 flex items-center justify-center gap-3  transition-all duration-500`}
               >
@@ -117,15 +113,27 @@ export default function LuckyResultModal({
               <Button
                 variant="primary"
                 className="!bg-amber-500 !hover:bg-amber-600"
-                onClick={onContinue}
+                onClick={() => {
+                  setRevealed(false);
+                  setToggleContinue(false);
+                  setTimeout(() => {
+                    setToggleContinue(true);
+                  }, 100);
+                  onContinue?.();
+                }}
               >
                 Quay tiếp
               </Button>
             </Box>
 
             <Box className="mt-4 flex items-center justify-center gap-1 text-amber-600">
-              <Icon icon="zi-add-member" className="text-sm" />
-              <Text className="text-xs">Chúc mừng bạn trúng thưởng!</Text>
+              <Text className="text-xs font-medium">
+                {!revealed
+                  ? "🎡 Đang quay... Hãy cùng chờ xem vận may của bạn hôm nay!"
+                  : result.prizeImage
+                  ? "🎉 Xin chúc mừng! Bạn đã trúng thưởng thật tuyệt vời!"
+                  : "✨ Số may mắn của bạn đã được bật mí hãy cùng chờ kết quả nhé!"}
+              </Text>
             </Box>
           </Box>
         </Box>

@@ -4,7 +4,7 @@ import {
   useGetOTPMutation,
   useUpdateZaloInfoMutation,
 } from "@/redux/api/auth/auth.api";
-import { updateBoth, updateUserId } from "@/redux/slices/appSlice";
+import { updateBoth, updatePhone, updateUserId } from "@/redux/slices/appSlice";
 import { Phone } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -141,6 +141,7 @@ const SplashScreen = () => {
       .unwrap()
       .then((value) => {
         if (value.status === 0) {
+          dispatch(updatePhone(value.data.phone));
           setHasInfo(true);
         } else {
           setHasInfo(false);

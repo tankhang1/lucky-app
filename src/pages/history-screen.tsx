@@ -1,5 +1,11 @@
 // pages/HistoryLuckyResultPage.tsx
+import {
+  useGetListCampaignHistoryQuery,
+  useSearchHistoryCampaignQuery,
+} from "@/redux/api/campaign/campaign.api";
+import { RootState } from "@/redux/store";
 import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Page,
   Box,
@@ -57,59 +63,38 @@ const TABS = [
 type TimeFilter = (typeof TABS)[number]["key"];
 
 const HistoryLuckyResultPage = () => {
-  const navigate = useNavigate();
+  const { p } = useSelector((state: RootState) => state.app);
   const [q, setQ] = useState("");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [tab, setTab] = useState<TimeFilter>("all");
   const [programFilter, setProgramFilter] = useState<string>("all");
-  const [data, setData] = useState<LuckyResult[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const mock: LuckyResult[] = [
+  const { data: listGiftHistory, isLoading: isLoadingListGiftHistory } =
+    useGetListCampaignHistoryQuery(
       {
-        targetNumber: 1289,
-        prizeLabel: "Áo thun Mappacific",
-        programTitle: "Lucky Draw Mùa Vụ",
-        winnerName: "Nguyễn An",
-        winnerPhone: "0912345678",
-        code: "TD-001",
-        time: "2025-09-24T10:30:00+07:00",
-        prizeImage:
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=400&auto=format&fit=crop",
+        c: "tungbunghethu",
+        p: p,
       },
-      {
-        targetNumber: 77,
-        prizeLabel: "Voucher 100K",
-        programTitle: "Tri Ân Khách Hàng",
-        winnerPhone: "0987654321",
-        code: "TA-112",
-        time: "2025-09-22T15:05:00+07:00",
-      },
-      {
-        targetNumber: 456,
-        prizeLabel: "Nón lưỡi trai",
-        programTitle: "Quà Tặng Tháng 8",
-        winnerName: "Trần Bình",
-        winnerPhone: "0909090909",
-        code: "QT-889",
-        time: "2025-08-05T09:12:00+07:00",
-      },
-      {
-        targetNumber: 9999,
-        prizeLabel: "Móc khóa",
-        programTitle: "Lucky Draw Mùa Vụ",
-        winnerName: "Lê Châu",
-        winnerPhone: "0901234567",
-        code: "TD-045",
-        time: "2025-09-24T16:00:00+07:00",
-      },
-    ];
-    setTimeout(() => {
-      setData(mock);
-      setLoading(false);
-    }, 150);
-  }, []);
+      { skip: !p }
+    );
+  console.log("list");
+  const data: LuckyResult[] = useMemo(
+    () =>
+      listGiftHistory?.map(
+        (item) =>
+          ({
+            targetNumber: +item.number,
+            prizeLabel: item.gift_name || "",
+            prizeImage: item.gift_image || "",
+            programTitle: item.name || "",
+            winnerName: "",
+            winnerPhone: p || "",
+            time: item.time || "",
+            code: item.number.toString(),
+          } as LuckyResult)
+      ) || [],
+    [listGiftHistory]
+  );
 
   const programs = useMemo(() => {
     const set = new Set<string>();
@@ -251,7 +236,7 @@ const HistoryLuckyResultPage = () => {
       </div>
 
       <Box className="p-4 space-y-6">
-        {loading ? (
+        {isLoadingListGiftHistory ? (
           <Box className="grid place-items-center py-16 text-neutral-500">
             <Text className="text-sm">Đang tải…</Text>
           </Box>

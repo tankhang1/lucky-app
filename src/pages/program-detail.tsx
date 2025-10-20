@@ -6,6 +6,7 @@ import {
   useGetListGiftQuery,
   useRequestLuckNumberMutation,
 } from "@/redux/api/campaign/campaign.api";
+import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
 import {
   CalendarRange,
@@ -95,88 +96,6 @@ const StatusPill = ({ status }: { status: Program["status"] }) => {
   );
 };
 
-// const data = {
-//   program: {
-//     id: "prog_001",
-//     title: "Tết 2025 – Lì xì vui vẻ",
-//     code: "TET2025",
-//     slogan: "Chúc bạn một năm mới an khang thịnh vượng",
-//     description:
-//       "Chương trình tri ân khách hàng dịp tết 2025. Tham gia quay số nhận e-voucher và quà Tết hấp dẫn.",
-//     rules: [
-//       "Mỗi số điện thoại được tham gia theo số lượt quay được cấp.",
-//       "Giải thưởng không quy đổi thành tiền mặt.",
-//     ],
-//     status: "open",
-//     startAt: "2025-12-20T08:00:00+07:00",
-//     endAt: "2026-01-05T23:59:59+07:00",
-//     banner:
-//       "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1600&auto=format&fit=crop",
-//     joined: true,
-//     prizes: [
-//       {
-//         id: "p1",
-//         label: "Giải Nhất",
-//         rewardName: "iPhone 15 128GB",
-//         count: 1,
-//         image:
-//           "https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop",
-//       },
-//       {
-//         id: "p2",
-//         label: "Giải Nhì",
-//         rewardName: "Tai nghe AirPods",
-//         count: 3,
-//         image:
-//           "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=1200&auto=format&fit=crop",
-//       },
-//       {
-//         id: "p3",
-//         label: "Giải Ba",
-//         rewardName: "Voucher 200.000đ",
-//         count: 5,
-//         image:
-//           "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1200&auto=format&fit=crop",
-//       },
-//     ],
-//   } as Program,
-//   participants: [
-//     {
-//       id: "u1",
-//       name: "Nguyễn An",
-//       phone: "+84912345678",
-//       joinedAt: "2025-09-21T09:10:00+07:00",
-//     },
-//     {
-//       id: "u2",
-//       name: "Trần Bình",
-//       phone: "+84876543210",
-//       joinedAt: "2025-09-21T10:05:00+07:00",
-//     },
-//     {
-//       id: "u3",
-//       name: "Lê C",
-//       phone: "+84987654321",
-//       joinedAt: "2025-09-21T11:20:00+07:00",
-//     },
-//   ] as Participant[],
-//   results: [
-//     {
-//       drawId: "draw_20250921_0001",
-//       prizeId: "p3",
-//       prizeLabel: "Giải Ba",
-//       winner: { name: "Nguyễn An", phone: "+84912345678" },
-//       time: "2025-09-21T14:05:09+07:00",
-//     },
-//     {
-//       drawId: "draw_20250921_0002",
-//       prizeId: "p3",
-//       prizeLabel: "Giải Ba",
-//       winner: { name: "Trần Bình", phone: "+84876543210" },
-//       time: "2025-09-21T14:06:40+07:00",
-//     },
-//   ] as ResultItem[],
-// };
 type TProgramDetail = {
   program: Program;
   participants: Participant[];
@@ -184,7 +103,7 @@ type TProgramDetail = {
 };
 const ProgramDetailScreen = () => {
   const { id } = useParams<{ id: string }>();
-  const { p } = useSelector((state: RootState) => state.app);
+  const { p, userId } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
     useGetCampaignDetailQuery(
       {
@@ -193,18 +112,17 @@ const ProgramDetailScreen = () => {
       },
       { skip: !id || !p }
     );
-  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery(
-    {
-      c: id || "",
-    },
-    {
-      skip: !id,
-    }
-  );
+  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery({
+    c: id || "",
+  });
   const [requestLuckNumber, { isLoading: isLoadingRequestLuckyNumber }] =
     useRequestLuckNumberMutation();
   const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
     useRequestLuckNumberMutation();
+  const [resultLuckyNumber, setResultLuckyNumber] = useState<TLuckResultItem>();
+  const [listResultLuckyNumber, setListResultLuckyNumber] = useState<
+    TLuckResultItem[]
+  >([]);
   const [messageError, setMessageError] = useState("");
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
@@ -266,13 +184,14 @@ const ProgramDetailScreen = () => {
   };
   const onRandomSingle = async () => {
     await requestLuckNumber({
-      phone: "84356955354",
-      zalo_user_id: "5128144677158637914",
+      phone: p,
+      zalo_user_id: userId,
       turn_all: 0,
-      campaign_code: "tungbunghethu",
+      campaign_code: id || "",
     })
       .unwrap()
-      .then(() => {
+      .then((value) => {
+        setResultLuckyNumber(value.data?.[0]);
         setOpenedLucky(true);
       })
       .catch((error) => {
@@ -281,13 +200,14 @@ const ProgramDetailScreen = () => {
   };
   const onRandomAll = async () => {
     await requestAllLuckNumber({
-      phone: "84356955354",
-      zalo_user_id: "5128144677158637914",
+      phone: p,
+      zalo_user_id: userId,
       turn_all: 1,
-      campaign_code: "tungbunghethu",
+      campaign_code: id || "",
     })
       .unwrap()
-      .then(() => {
+      .then((value) => {
+        setListResultLuckyNumber(value.data);
         setOpenedListLucky(true);
       })
       .catch((error) => {
@@ -560,19 +480,37 @@ const ProgramDetailScreen = () => {
       <LuckyResultModal
         openedLucky={openedLucky}
         onClose={() => setOpenedLucky(false)}
-        onContinue={() => setOpenedLucky(false)}
-        result={result}
+        onContinue={onRandomSingle}
+        result={{
+          prizeLabel: resultLuckyNumber?.gift_name || "",
+          targetNumber: resultLuckyNumber?.number || 0,
+          winnerPhone: p,
+          code: programDetail?.code,
+          prizeImage: resultLuckyNumber?.gift_image || "",
+          programTitle: programDetail?.name || "",
+          time: new Date().toDateString(),
+        }}
       />
       <ListLuckyResultModal
         openedLucky={openedListLucky}
         onClose={() => setOpenedListLucky(false)}
-        queue={[result, result, result, result]}
+        queue={
+          listResultLuckyNumber?.map((item) => ({
+            prizeLabel: item?.gift_name || "",
+            targetNumber: item?.number || 0,
+            winnerPhone: p,
+            code: programDetail?.code || "",
+            prizeImage: item?.gift_image || "",
+            programTitle: programDetail?.name || "123",
+            time: new Date().toDateString(),
+          })) || []
+        }
       />
       <LuckConfirmModal
         opened={confirmedModal}
         onConfirm={() => {
           setConfirmedModal(false);
-          onRandomAll();
+          onRandomSingle();
         }}
         onClose={() => {
           setConfirmedModal(false);
