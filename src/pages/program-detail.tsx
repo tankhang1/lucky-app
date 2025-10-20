@@ -1,12 +1,18 @@
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import LuckyResultModal from "@/components/lucky-result-modal";
+import { ResultsGrid } from "@/components/program-detail-result";
 import {
   useGetCampaignDetailQuery,
+  useGetListCampaignHistoryQuery,
   useGetListGiftQuery,
+  useGetListResultNumberQuery,
   useRequestLuckNumberMutation,
 } from "@/redux/api/campaign/campaign.api";
-import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
+import {
+  TLuckResultItem,
+  TResultLuckyNumberItem,
+} from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
 import {
   CalendarRange,
@@ -99,7 +105,7 @@ const StatusPill = ({ status }: { status: Program["status"] }) => {
 type TProgramDetail = {
   program: Program;
   participants: Participant[];
-  results: ResultItem[];
+  results: TResultLuckyNumberItem[];
 };
 const ProgramDetailScreen = () => {
   const { id } = useParams<{ id: string }>();
@@ -112,9 +118,20 @@ const ProgramDetailScreen = () => {
       },
       { skip: !id || !p }
     );
-  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery({
-    c: id || "",
-  });
+  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery(
+    {
+      c: id || "",
+    },
+    { skip: !id }
+  );
+  const { data: listResult, isLoading: isLoadingListResult } =
+    useGetListResultNumberQuery(
+      {
+        c: id || "",
+        p: p,
+      },
+      { skip: !id || !p }
+    );
   const [requestLuckNumber, { isLoading: isLoadingRequestLuckyNumber }] =
     useRequestLuckNumberMutation();
   const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
@@ -149,9 +166,9 @@ const ProgramDetailScreen = () => {
         pdf: programDetail?.pdf,
       },
       participants: [],
-      results: [],
+      results: listResult || [],
     }),
-    [programDetail]
+    [programDetail, listGift, listResult]
   );
   const { program, participants, results } = data;
   const [openedMore, setOpenedMore] = useState(false);
@@ -416,36 +433,7 @@ const ProgramDetailScreen = () => {
           ))}
 
         {tab === "results" && (
-          <div className="mt-5 grid gap-4">
-            {results.map((r) => (
-              <div
-                key={r.drawId}
-                className="rounded-2xl bg-white/80 backdrop-blur p-4 shadow-sm ring-1 ring-white/60"
-              >
-                <div className="flex items-center justify-between">
-                  <Text className="text-sm font-semibold">{r.prizeLabel}</Text>
-                  <span className="text-xs text-neutral-500">
-                    {new Date(r.time).toLocaleString()}
-                  </span>
-                </div>
-                <div className="mt-1 text-sm text-neutral-700">
-                  {r.winner.name ? `${r.winner.name} • ` : ""}
-                  {maskPhone(r.winner.phone)}
-                </div>
-                <div className="mt-1 text-xs text-neutral-500">
-                  Mã quay: {r.drawId}
-                </div>
-              </div>
-            ))}
-            {!results.length && (
-              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
-                <Text className="font-semibold">Chưa có kết quả</Text>
-                <Text className="mt-1 text-sm">
-                  Bấm “Quay 1 giải” hoặc “Quay tất cả”.
-                </Text>
-              </div>
-            )}
-          </div>
+          <ResultsGrid items={results as TResultLuckyNumberItem[]} />
         )}
       </Box>
 

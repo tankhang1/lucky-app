@@ -26,3 +26,8 @@ export type TGetListCampaignHistoryReq = {
 export type TSearchCampaignReq = {
   k: string;
 };
+
+export type TResultLuckyNumberReq = {
+  c: string;
+  p: string;
+};

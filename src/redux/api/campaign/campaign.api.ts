@@ -5,6 +5,7 @@ import {
   TGetListCampaignReq,
   TGetListGiftReq,
   TGetLuckyNumberReq,
+  TResultLuckyNumberReq,
   TSearchCampaignReq,
 } from "./campaign.request";
 import {
@@ -13,6 +14,7 @@ import {
   TGetListCampaignRes,
   TGetListGiftRes,
   TGetLuckyNumberRes,
+  TResultLuckyNumberRes,
   TSearchCampaignRes,
 } from "./campaign.response";
 export const campaignApi = createApi({
@@ -84,7 +86,7 @@ export const campaignApi = createApi({
       TGetListCampaignHistoryReq
     >({
       query: (params) => ({
-        url: "/campaign/consumer/history",
+        url: "/zalo/campaign/consumer/history",
         method: "GET",
         params,
       }),
@@ -92,6 +94,16 @@ export const campaignApi = createApi({
     searchHistoryCampaign: build.query<TSearchCampaignRes, TSearchCampaignReq>({
       query: (params) => ({
         url: "/zalo/campaign/search",
+        method: "GET",
+        params,
+      }),
+    }),
+    getListResultNumber: build.query<
+      TResultLuckyNumberRes,
+      TResultLuckyNumberReq
+    >({
+      query: (params) => ({
+        url: "/zalo/campaign/detail/number",
         method: "GET",
         params,
       }),
@@ -107,4 +119,5 @@ export const {
   useGetListCampaignHistoryQuery,
   useRequestLuckNumberMutation,
   useSearchHistoryCampaignQuery,
+  useGetListResultNumberQuery,
 } = campaignApi;

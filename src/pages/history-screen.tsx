@@ -68,7 +68,6 @@ const HistoryLuckyResultPage = () => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [tab, setTab] = useState<TimeFilter>("all");
   const [programFilter, setProgramFilter] = useState<string>("all");
-
   const { data: listGiftHistory, isLoading: isLoadingListGiftHistory } =
     useGetListCampaignHistoryQuery(
       {

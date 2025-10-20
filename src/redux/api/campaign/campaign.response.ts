@@ -74,3 +74,13 @@ export type TSearchCampaignItem = {
   time_deactive_number: number;
 };
 export type TSearchCampaignRes = TSearchCampaignItem[];
+
+export type TResultLuckyNumberItem = {
+  number: string;
+  time: string;
+  award_number: string;
+  award_time: string;
+  gift_name: string;
+  gift_image: string;
+};
+export type TResultLuckyNumberRes = TResultLuckyNumberItem[];
