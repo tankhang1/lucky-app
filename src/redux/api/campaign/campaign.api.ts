@@ -18,8 +18,9 @@ import {
 export const campaignApi = createApi({
   reducerPath: "campaignApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://172.16.3.179:9080",
+    baseUrl: "https://mps-api.vmarketing.vn",
   }),
+  tagTypes: ["Campaign-Detail"],
   endpoints: (build) => ({
     getListActiveCampagin: build.query<
       TGetListCampaignRes,
@@ -57,6 +58,7 @@ export const campaignApi = createApi({
           c,
         },
       }),
+      providesTags: (result) => [{ type: "Campaign-Detail", id: result?.code }],
     }),
     getListGift: build.query<TGetListGiftRes, TGetListGiftReq>({
       query: ({ c }) => ({
@@ -73,6 +75,9 @@ export const campaignApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: (result, error, arg) => [
+        { type: "Campaign-Detail", id: arg.campaign_code },
+      ],
     }),
     getListCampaignHistory: build.query<
       TGetListCampaignHistoryRes,

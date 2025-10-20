@@ -3,9 +3,9 @@ type Props = {
   // Define any props if needed
   opened: boolean;
   onClose: () => void;
-  onConfirm?: () => void;
+  onConfirm: () => void;
 };
-const LuckConfirmModal = ({ opened, onClose }: Props) => {
+const LuckConfirmModal = ({ opened, onClose, onConfirm }: Props) => {
   return (
     <Modal visible={opened} onClose={onClose}>
       <Box className="px-5 pb-4 text-center">
@@ -24,8 +24,7 @@ const LuckConfirmModal = ({ opened, onClose }: Props) => {
           <Button
             className="h-10 rounded-xl text-white font-semibold shadow-lg active:scale-[0.99] transition bg-gradient-to-r from-emerald-500 to-amber-400 hover:opacity-95"
             onClick={() => {
-              onClose();
-              // handle confirm action
+              onConfirm();
             }}
           >
             Xác nhận
@@ -33,7 +32,7 @@ const LuckConfirmModal = ({ opened, onClose }: Props) => {
           <Button
             className="h-10 px-4 rounded-xl text-neutral-700 font-semibold shadow-lg active:scale-[0.99] transition bg-neutral-200 hover:bg-neutral-300"
             onClick={() => {
-              // handle cancel action
+              onClose();
             }}
           >
             Hủy

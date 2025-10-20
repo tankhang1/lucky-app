@@ -4,7 +4,9 @@ import LuckyResultModal from "@/components/lucky-result-modal";
 import {
   useGetCampaignDetailQuery,
   useGetListGiftQuery,
+  useRequestLuckNumberMutation,
 } from "@/redux/api/campaign/campaign.api";
+import { RootState } from "@/redux/store";
 import {
   CalendarRange,
   ChevronDown,
@@ -14,8 +16,19 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { openDocument } from "zmp-sdk";
-import { Page, Box, Text, Button, Header, Spinner } from "zmp-ui";
+import {
+  Page,
+  Box,
+  Text,
+  Button,
+  Header,
+  Spinner,
+  Modal,
+  Stack,
+  useParams,
+} from "zmp-ui";
 
 type Prize = {
   id: string;
@@ -170,14 +183,29 @@ type TProgramDetail = {
   results: ResultItem[];
 };
 const ProgramDetailScreen = () => {
+  const { id } = useParams<{ id: string }>();
+  const { p } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
-    useGetCampaignDetailQuery({
-      c: "tungbunghethu",
-      p: "84356955354",
-    });
-  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery({
-    c: "tungbunghethu",
-  });
+    useGetCampaignDetailQuery(
+      {
+        c: id || "",
+        p: p,
+      },
+      { skip: !id || !p }
+    );
+  const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery(
+    {
+      c: id || "",
+    },
+    {
+      skip: !id,
+    }
+  );
+  const [requestLuckNumber, { isLoading: isLoadingRequestLuckyNumber }] =
+    useRequestLuckNumberMutation();
+  const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
+    useRequestLuckNumberMutation();
+  const [messageError, setMessageError] = useState("");
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
     () => ({
@@ -236,8 +264,36 @@ const ProgramDetailScreen = () => {
       download: true,
     });
   };
-  const onRandomSingle = () => setOpenedLucky(true);
-  const onRandomAll = () => setOpenedListLucky(true);
+  const onRandomSingle = async () => {
+    await requestLuckNumber({
+      phone: "84356955354",
+      zalo_user_id: "5128144677158637914",
+      turn_all: 0,
+      campaign_code: "tungbunghethu",
+    })
+      .unwrap()
+      .then(() => {
+        setOpenedLucky(true);
+      })
+      .catch((error) => {
+        setMessageError(error.data.message);
+      });
+  };
+  const onRandomAll = async () => {
+    await requestAllLuckNumber({
+      phone: "84356955354",
+      zalo_user_id: "5128144677158637914",
+      turn_all: 1,
+      campaign_code: "tungbunghethu",
+    })
+      .unwrap()
+      .then(() => {
+        setOpenedListLucky(true);
+      })
+      .catch((error) => {
+        setMessageError(error.data.message);
+      });
+  };
 
   return (
     <Page className="relative min-h-screen bg-gradient-to-b from-amber-50 via-neutral-50 to-emerald-50 text-neutral-900">
@@ -259,7 +315,7 @@ const ProgramDetailScreen = () => {
               <div className="h-full w-full bg-neutral-100" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-            <div className="absolute left-3 top-3">
+            <div className="absolute left-3 top-7">
               <StatusPill status={program.status} />
             </div>
             <div className="absolute left-4 right-4 bottom-4">
@@ -485,12 +541,14 @@ const ProgramDetailScreen = () => {
           <Button
             disabled={program.status !== "open"}
             onClick={onRandomSingle}
+            loading={isLoadingRequestLuckyNumber}
             className="h-12 flex-1 rounded-xl !border !border-neutral-600 font-semibold text-neutral-900 bg-white hover:bg-neutral-50"
           >
             Quay 1 giải
           </Button>
           <Button
             disabled={program.status !== "open"}
+            loading={isLoadingRequestAllLuckyNumber}
             onClick={() => setConfirmedModal(true)}
             className="h-12 flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-400 text-white font-semibold"
           >
@@ -512,11 +570,33 @@ const ProgramDetailScreen = () => {
       />
       <LuckConfirmModal
         opened={confirmedModal}
+        onConfirm={() => {
+          setConfirmedModal(false);
+          onRandomAll();
+        }}
         onClose={() => {
           setConfirmedModal(false);
-          setOpenedListLucky(true);
         }}
       />
+      <Modal
+        visible={messageError !== ""}
+        onClose={() => setMessageError("")}
+        maskClosable
+      >
+        <Stack space="10px">
+          <Box
+            dangerouslySetInnerHTML={{
+              __html: messageError,
+            }}
+          />
+          <Button
+            className="bg-green-600 font-bold hover:bg-green-500"
+            onClick={() => setMessageError("")}
+          >
+            Xác nhận
+          </Button>
+        </Stack>
+      </Modal>
     </Page>
   );
 };

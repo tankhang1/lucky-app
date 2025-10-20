@@ -3,7 +3,9 @@ import {
   useGetListExpiredCampaginQuery,
 } from "@/redux/api/campaign/campaign.api";
 import { TCampaginItem } from "@/redux/api/campaign/campaign.response";
+import { RootState } from "@/redux/store";
 import { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { Page, Box, Input, Text, Icon, useNavigate, Spinner } from "zmp-ui";
 
 type Program = {
@@ -92,7 +94,7 @@ const Card = ({
           <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-600">
             <span className="rounded-md bg-neutral-50 px-2 py-1">{p.time}</span>
           </div>
-          <Text className="mt-2 text-start text-xs text-neutral-700 line-clamp-4 whitespace-pre-line">
+          <Text className="mt-2 text-start text-[11px] text-neutral-700 line-clamp-4 whitespace-pre-line">
             {p.description}
           </Text>
         </div>
@@ -137,16 +139,23 @@ const HomeScreen = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<"all" | Program["status"]>("open");
+  const { p } = useSelector((state: RootState) => state.app);
   const { data: listActiveCampaigns, isLoading: isLoadingListActiveCampaign } =
-    useGetListActiveCampaginQuery({
-      p: "84356955354",
-    });
+    useGetListActiveCampaginQuery(
+      {
+        p: p,
+      },
+      { skip: !p }
+    );
   const {
     data: listExpiredCampaigns,
     isLoading: isLoadingListExpiredCampaign,
-  } = useGetListExpiredCampaginQuery({
-    p: "84356955354",
-  });
+  } = useGetListExpiredCampaginQuery(
+    {
+      p: p,
+    },
+    { skip: !p }
+  );
   const listAllCapaigns = useMemo(
     () => [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
     [listActiveCampaigns, listExpiredCampaigns]

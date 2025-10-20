@@ -5,4 +5,10 @@ export type TCheckUserIdRes = {
   message: string;
   status: number;
 };
-export type TUpdateZaloInfoRes = {};
+export type TUpdateZaloInfoRes = {
+  data: {
+    phone: string;
+    zalo_user_id: string;
+  };
+  message: string;
+};

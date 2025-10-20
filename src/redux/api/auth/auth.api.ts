@@ -14,9 +14,9 @@ import {
   TUpdateZaloInfoReq,
 } from "./auth.request";
 export const authApi = createApi({
-  reducerPath: "auth",
+  reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://172.16.3.179:9080",
+    baseUrl: "https://mps-api.vmarketing.vn",
   }),
   endpoints: (build) => ({
     getOTP: build.mutation<TOtpRes, TOtpReq>({

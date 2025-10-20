@@ -4,8 +4,10 @@ import {
   useGetOTPMutation,
   useUpdateZaloInfoMutation,
 } from "@/redux/api/auth/auth.api";
+import { updateBoth, updateUserId } from "@/redux/slices/appSlice";
 import { Phone } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import {
   authorize,
@@ -27,6 +29,7 @@ import {
 } from "zmp-ui";
 
 const SplashScreen = () => {
+  const dispatch = useDispatch();
   const [phone, setPhone] = useState("");
   const [hasInfo, setHasInfo] = useState(false);
   const [manualLoading, setManualLoading] = useState(false);
@@ -72,7 +75,7 @@ const SplashScreen = () => {
             const userInfo = await getUserInfo();
             const userId = await getUserID();
             console.log("Update Info", {
-              accessToken: accessToken,
+              access_token: accessToken,
               avatar: userInfo.userInfo.avatar,
               code_get_location: location.token || "",
               code_get_phone: phone.token || "",
@@ -82,9 +85,11 @@ const SplashScreen = () => {
               zalo_app_id: "2789126480767308500",
               zalo_device_id: "",
               zalo_user_id: userId,
+              code: "test",
+              code_hash: "test",
             });
             await updateZaloInfo({
-              accessToken: accessToken,
+              access_token: accessToken,
               avatar: userInfo.userInfo.avatar,
               code_get_location: location.token || "",
               code_get_phone: phone.token || "",
@@ -94,9 +99,17 @@ const SplashScreen = () => {
               zalo_app_id: "2789126480767308500",
               zalo_device_id: "",
               zalo_user_id: userId,
+              code: "test",
+              code_hash: "test",
             })
               .unwrap()
-              .then(() => {
+              .then((value) => {
+                dispatch(
+                  updateBoth({
+                    p: "84356955354",
+                    userId: value.data.zalo_user_id,
+                  })
+                );
                 setManualLoading(false);
                 navigate("/home");
               })
@@ -121,7 +134,7 @@ const SplashScreen = () => {
 
   const onGetUserId = useCallback(async () => {
     const userId = await getUserID();
-
+    dispatch(updateUserId(userId));
     await checkUserId({
       zalo_user_id: userId,
     })
@@ -165,7 +178,7 @@ const SplashScreen = () => {
                   </Text>
                 </Box>
 
-                <Box className="mt-6 space-y-4">
+                {/* <Box className="mt-6 space-y-4">
                   <Input
                     type="text"
                     value={phone}
@@ -189,19 +202,19 @@ const SplashScreen = () => {
                   >
                     Đăng nhập bằng OTP
                   </Button>
-                </Box>
+                </Box> */}
 
-                <Box className="my-5 flex items-center gap-3">
+                {/* <Box className="my-5 flex items-center gap-3">
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-200 to-transparent" />
                   <span className="text-[11px] text-neutral-500">hoặc</span>
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-200 to-transparent" />
-                </Box>
+                </Box> */}
 
                 <Button
                   onClick={onLoginWithZalo}
                   disabled={isLoadingCheckUserId || manualLoading}
                   loading={isLoadingCheckUserId || manualLoading}
-                  className="h-12 w-full rounded-xl font-semibold bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50 shadow"
+                  className="h-12 w-full rounded-xl font-semibold bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50 shadow mt-4"
                   prefixIcon={
                     <img
                       src="https://hidosport.vn/wp-content/uploads/2023/09/zalo-icon.png"
