@@ -80,6 +80,7 @@ export type TResultLuckyNumberItem = {
   time: string;
   award_number: string;
   award_time: string;
+  award_name: string;
   gift_name: string;
   gift_image: string;
 };

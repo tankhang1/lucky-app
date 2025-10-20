@@ -54,7 +54,7 @@ export default function ListLuckyResultModal({
     >
       <Box>
         <Box className="mx-auto w-full max-w-md rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden">
-          <Box className="absolute top-1 z-auto left-1/2 -translate-x-1/2 h-20 w-20 rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg">
+          <Box className="absolute top-1 z-50 left-1/2 -translate-x-1/2 h-20 w-20 rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg">
             <img src={Gift} alt="Gift" className="h-12 w-12" />
           </Box>
 
@@ -122,20 +122,13 @@ export default function ListLuckyResultModal({
               </Text>
             )}
 
-            <Box className="mt-5 grid grid-cols-2 gap-3">
+            <Box className="mt-5">
               <Button
-                variant="tertiary"
-                className="!border !border-gray-200 !bg-white text-black hover:!bg-gray-50"
+                variant="primary"
+                className="!border !border-gray-300 w-full !bg-gray-200 text-black hover:!bg-gray-50"
                 onClick={onClose}
               >
                 Đóng
-              </Button>
-              <Button
-                variant="primary"
-                className="!bg-amber-500 !hover:bg-amber-600"
-                onClick={onContinue}
-              >
-                Quay tiếp
               </Button>
             </Box>
 

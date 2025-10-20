@@ -68,8 +68,8 @@ export function PrizesList({
                   ) : (
                     <div className="h-36 w-44 bg-neutral-100" />
                   )}
-                  <div className="absolute left-0 top-3 pl-3">
-                    <span className="inline-block rounded-r-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
+                  <div className="absolute left-[-16px] top-0 pl-3">
+                    <span className="inline-block rounded-br-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
                       {p.label}
                     </span>
                   </div>

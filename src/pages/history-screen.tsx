@@ -124,10 +124,10 @@ const CardItem = ({ r }: { r: TGetListCampaignHistoryItem }) => {
           <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
               <div className="text-2xs uppercase tracking-wide text-neutral-500">
-                Tên giải
+                Giải thưởng
               </div>
               <div className="mt-0.5 font-semibold text-neutral-900 truncate">
-                {r.award_name || r.gift_name || "—"}
+                {r.award_name || "—"}
               </div>
             </div>
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
@@ -160,7 +160,14 @@ const HistoryLuckyResultPage = () => {
   const [programCode, setProgramCode] = useState<string | undefined>(undefined);
 
   // danh sách chương trình để user chọn
-  const { data: searchCampaigns } = useSearchHistoryCampaignQuery({ k: "" });
+  const { data: searchCampaigns } = useSearchHistoryCampaignQuery(
+    { k: "" },
+    {
+      refetchOnFocus: true,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+    }
+  );
 
   // chuẩn hóa options duy nhất theo code
   const programOptions = useMemo(() => {
@@ -186,7 +193,12 @@ const HistoryLuckyResultPage = () => {
   const { data: listGiftHistory, isLoading: isLoadingListGiftHistory } =
     useGetListCampaignHistoryQuery(
       { c: programCode ?? "", p },
-      { skip: !p || !programCode }
+      {
+        skip: !p || !programCode,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+        refetchOnReconnect: true,
+      }
     );
 
   // lọc + sắp xếp + phân trang (toàn danh sách)
@@ -232,8 +244,8 @@ const HistoryLuckyResultPage = () => {
 
   return (
     <Page className="min-h-screen bg-neutral-50">
-      <Header title="Lịch sử quay thưởng" />
-      <div className="px-5 pb-4 pt-20">
+      <Header title="Lịch sử quay thưởng" className="relative" />
+      <div className="px-5 pb-4 pt-5">
         <div className="rounded-2xl bg-white border border-neutral-200">
           <Input
             placeholder="Tìm kiếm (tên CT/giải/số trúng)…"
@@ -365,7 +377,7 @@ const HistoryLuckyResultPage = () => {
                 Trước
               </button>
 
-              {usePageNumbers(page, maxPage, 1).map((n, i, arr) => {
+              {nums.map((n, i, arr) => {
                 const prev = arr[i - 1];
                 const showDots = i > 0 && n - (prev ?? n) > 1;
                 return (

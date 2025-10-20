@@ -36,6 +36,7 @@ import {
   Modal,
   Stack,
   useParams,
+  useNavigate,
 } from "zmp-ui";
 
 type Prize = {
@@ -109,6 +110,7 @@ type TProgramDetail = {
   results: TResultLuckyNumberItem[];
 };
 const ProgramDetailScreen = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { p, userId } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
@@ -117,22 +119,40 @@ const ProgramDetailScreen = () => {
         c: id || "",
         p: p,
       },
-      { skip: !id || !p }
+      {
+        skip: !id || !p,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+        refetchOnReconnect: true,
+      }
     );
   const { data: listGift, isLoading: isLoadingListGift } = useGetListGiftQuery(
     {
       c: id || "",
     },
-    { skip: !id }
+    {
+      skip: !id,
+      refetchOnFocus: true,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+    }
   );
-  const { data: listResult, isLoading: isLoadingListResult } =
-    useGetListResultNumberQuery(
-      {
-        c: id || "",
-        p: p,
-      },
-      { skip: !id || !p }
-    );
+  const {
+    data: listResult,
+    isLoading: isLoadingListResult,
+    refetch: refetchListResult,
+  } = useGetListResultNumberQuery(
+    {
+      c: id || "",
+      p: p,
+    },
+    {
+      skip: !id || !p,
+      refetchOnFocus: true,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+    }
+  );
   const [requestLuckNumber, { isLoading: isLoadingRequestLuckyNumber }] =
     useRequestLuckNumberMutation();
   const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
@@ -177,22 +197,7 @@ const ProgramDetailScreen = () => {
   const [openedLucky, setOpenedLucky] = useState(false);
   const [openedListLucky, setOpenedListLucky] = useState(false);
   const [confirmedModal, setConfirmedModal] = useState(false);
-  const [result, setResult] = useState({
-    targetNumber: 83123,
-    prizeLabel: "Voucher 200.000đ",
-    prizeImage:
-      "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop",
-    programTitle: program.title,
-    winnerName: "Nguyễn An",
-    winnerPhone: "0987654321",
-    time: new Date().toISOString(),
-    code: "TICKET-9X2F",
-  });
 
-  const totalPrizeQty = useMemo(
-    () => program.prizes.reduce((s, p) => s + p.count, 0),
-    [program]
-  );
   const openPDF = () => {
     openDocument({
       url: program?.pdf,
@@ -210,6 +215,7 @@ const ProgramDetailScreen = () => {
       .unwrap()
       .then((value) => {
         setResultLuckyNumber(value.data?.[0]);
+        refetchListResult();
         setOpenedLucky(true);
       })
       .catch((error) => {
@@ -226,6 +232,7 @@ const ProgramDetailScreen = () => {
       .unwrap()
       .then((value) => {
         setListResultLuckyNumber(value.data);
+        refetchListResult();
         setOpenedListLucky(true);
       })
       .catch((error) => {
@@ -238,9 +245,11 @@ const ProgramDetailScreen = () => {
       <Header
         title={program.title}
         backgroundColor="bg-white/70 backdrop-blur-md"
+        onBackClick={() => navigate("/home")}
+        className="relative"
       />
 
-      <Box className="pt-16">
+      <Box>
         <div className="overflow-hidden bg-white shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-neutral-200">
           <div className="relative w-full aspect-[16/9]">
             {program.banner ? (
@@ -376,9 +385,14 @@ const ProgramDetailScreen = () => {
             </div>
           ))}
 
-        {tab === "results" && (
-          <ResultsGrid items={results as TResultLuckyNumberItem[]} />
-        )}
+        {tab === "results" &&
+          (isLoadingListResult ? (
+            <div className="flex justify-center items-center">
+              <Spinner />
+            </div>
+          ) : (
+            <ResultsGrid items={results as TResultLuckyNumberItem[]} />
+          ))}
       </Box>
 
       <Box className="h-24" />
@@ -442,7 +456,7 @@ const ProgramDetailScreen = () => {
         opened={confirmedModal}
         onConfirm={() => {
           setConfirmedModal(false);
-          onRandomSingle();
+          onRandomAll();
         }}
         onClose={() => {
           setConfirmedModal(false);

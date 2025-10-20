@@ -22,7 +22,7 @@ export const campaignApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://mps-api.vmarketing.vn",
   }),
-  tagTypes: ["Campaign-Detail"],
+  tagTypes: ["Campaign-Detail", "Campaign-Result"],
   endpoints: (build) => ({
     getListActiveCampagin: build.query<
       TGetListCampaignRes,

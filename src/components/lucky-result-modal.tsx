@@ -58,7 +58,7 @@ export default function LuckyResultModal({
     >
       <Box>
         <Box className="mx-auto w-full max-w-md rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden">
-          <Box className="absolute top-1 z-auto left-1/2 -translate-x-1/2 h-20 w-20 rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg">
+          <Box className="absolute top-1 z-50 left-1/2 -translate-x-1/2 h-20 w-20 rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg">
             <img src={Gift} alt="Gift" className="h-12 w-12" />
           </Box>
 

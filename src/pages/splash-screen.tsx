@@ -71,13 +71,13 @@ const SplashScreen = () => {
           try {
             const accessToken = await getAccessToken();
             const phone = await getPhoneNumber();
-            const location = await getLocation();
+            const locationZalo = await getLocation();
             const userInfo = await getUserInfo();
             const userId = await getUserID();
             console.log("Update Info", {
               access_token: accessToken,
               avatar: userInfo.userInfo.avatar,
-              code_get_location: location.token || "",
+              code_get_location: locationZalo.token || "",
               code_get_phone: phone.token || "",
               followed_oa: userInfo.userInfo.followedOA || false,
               is_sensitive: userInfo.userInfo.isSensitive || false,
@@ -91,7 +91,7 @@ const SplashScreen = () => {
             await updateZaloInfo({
               access_token: accessToken,
               avatar: userInfo.userInfo.avatar,
-              code_get_location: location.token || "",
+              code_get_location: locationZalo.token || "",
               code_get_phone: phone.token || "",
               followed_oa: userInfo.userInfo.followedOA || false,
               is_sensitive: userInfo.userInfo.isSensitive || false,
@@ -106,12 +106,16 @@ const SplashScreen = () => {
               .then((value) => {
                 dispatch(
                   updateBoth({
-                    p: "84356955354",
+                    p: value.data.phone,
                     userId: value.data.zalo_user_id,
                   })
                 );
                 setManualLoading(false);
-                navigate("/home");
+                const params = new URLSearchParams(location.search);
+                const c = params.get("c");
+                if (c) {
+                  navigate(`/program/${c}`);
+                } else navigate("/home");
               })
               .catch((error) => {
                 setManualLoading(false);
@@ -143,6 +147,11 @@ const SplashScreen = () => {
         if (value.status === 0) {
           dispatch(updatePhone(value.data.phone));
           setHasInfo(true);
+          const params = new URLSearchParams(location.search);
+          const c = params.get("c");
+          if (c) {
+            navigate(`/program/${c}`);
+          }
         } else {
           setHasInfo(false);
         }

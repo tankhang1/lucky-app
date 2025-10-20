@@ -60,10 +60,10 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
               <div className="text-2xs uppercase tracking-wide text-neutral-500">
-                Mã giải
+                Giải thưởng
               </div>
               <div className="mt-0.5 font-semibold text-neutral-900">
-                {r.award_number}
+                {r.award_name}
               </div>
             </div>
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
