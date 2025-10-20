@@ -1,6 +1,7 @@
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import LuckyResultModal from "@/components/lucky-result-modal";
+import { PrizesList } from "@/components/program-detail-prizes";
 import { ResultsGrid } from "@/components/program-detail-result";
 import {
   useGetCampaignDetailQuery,
@@ -370,65 +371,8 @@ const ProgramDetailScreen = () => {
               <Spinner />
             </div>
           ) : (
-            <div className="mt-5 grid gap-4">
-              {program.prizes.map((p) => (
-                <div
-                  key={p.id}
-                  className="rounded-xl p-[1.5px] bg-gradient-to-br from-emerald-300/50 via-amber-200/50 to-white/60"
-                >
-                  <div className="rounded-xl h-36 bg-white/80 backdrop-blur-md shadow-md ring-1 ring-white/60 overflow-hidden">
-                    <div className="flex">
-                      <div className="relative">
-                        {p.image ? (
-                          <img
-                            src={p.image}
-                            alt={p.rewardName}
-                            className="h-36 w-44 object-cover"
-                          />
-                        ) : (
-                          <div className="h-36 w-44 bg-neutral-100" />
-                        )}
-                        <div className="absolute left-0 top-3 pl-3">
-                          <span className="inline-block rounded-r-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
-                            {p.label}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <div className="text-[11px] text-neutral-500">
-                          Mã: {p.id}
-                        </div>
-                        <div className="mt-1">
-                          <Text className="text-xs text-neutral-500">
-                            Tên giải thưởng
-                          </Text>
-                          <Text className="text-base font-semibold">
-                            {p.rewardName}
-                          </Text>
-                        </div>
-                        <div className="mt-2">
-                          <Text className="text-xs text-neutral-500">
-                            Số lượng
-                          </Text>
-                          <Text className="text-base font-semibold">
-                            {p.count}
-                          </Text>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {!program.prizes.length && (
-                <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
-                  <Text className="font-semibold">
-                    Chưa cấu hình giải thưởng
-                  </Text>
-                  <Text className="mt-1 text-sm">
-                    Thêm giải để bắt đầu chương trình.
-                  </Text>
-                </div>
-              )}
+            <div className="mt-5">
+              <PrizesList prizes={program.prizes} pageSize={6} />
             </div>
           ))}
 

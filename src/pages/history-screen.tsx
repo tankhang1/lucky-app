@@ -1,47 +1,52 @@
 // pages/HistoryLuckyResultPage.tsx
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import {
   useGetListCampaignHistoryQuery,
   useSearchHistoryCampaignQuery,
 } from "@/redux/api/campaign/campaign.api";
-import { RootState } from "@/redux/store";
-import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import {
-  Page,
-  Box,
-  Text,
-  Input,
-  Icon,
-  Avatar,
-  Button,
-  useNavigate,
-  Header,
-} from "zmp-ui";
+import { Page, Box, Text, Input, Icon, Avatar, Button, Header } from "zmp-ui";
 
-type LuckyResult = {
-  targetNumber: number;
-  prizeLabel: string;
-  prizeImage?: string;
-  programTitle?: string;
-  winnerName?: string;
-  winnerPhone: string;
-  time?: string;
-  code?: string;
+export type TGetListCampaignHistoryItem = {
+  number: number;
+  time: string;
+  name: string;
+  award_name: string;
+  award_time: string;
+  gift_image: string;
+  gift_name: string;
+};
+export type TGetListCampaignHistoryRes = TGetListCampaignHistoryItem[];
+
+export type TSearchCampaignItem = {
+  id: number;
+  uuid: string;
+  code: string; // dùng code để gọi API lịch sử
+  name: string;
+  time_create: string;
+  time_create_number: number;
+  time_start: string;
+  time_start_number: number;
+  time_end: string;
+  time_end_number: number;
+  time_deactive: string;
+  time_deactive_number: number;
 };
 
-const maskPhone = (p: string) =>
-  p.replace(/(\d{3})\d+(\d{2})$/, (_, a, b) => `${a}***${b}`);
+const TABS = [
+  { key: "today", label: "Hôm nay" },
+  { key: "week", label: "Tuần này" },
+  { key: "month", label: "Tháng này" },
+  { key: "all", label: "Tất cả" },
+] as const;
+type TimeFilter = (typeof TABS)[number]["key"];
 
 const fmtDate = (iso?: string) => {
-  const d = iso ? new Date(iso) : new Date();
-  return d.toLocaleString();
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString("vi-VN");
 };
-
-const isSameDay = (a: Date, b: Date) =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate();
-
 const startOfDay = (d = new Date()) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const startOfWeek = (d = new Date()) => {
@@ -54,64 +59,142 @@ const startOfWeek = (d = new Date()) => {
 const startOfMonth = (d = new Date()) =>
   new Date(d.getFullYear(), d.getMonth(), 1);
 
-const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "today", label: "Hôm nay" },
-  { key: "week", label: "Tuần này" },
-  { key: "month", label: "Tháng này" },
-] as const;
-type TimeFilter = (typeof TABS)[number]["key"];
+function usePageNumbers(page: number, maxPage: number, span = 1) {
+  const pages = new Set<number>([1, maxPage, page]);
+  for (let i = 1; i <= span; i++) {
+    pages.add(page - i);
+    pages.add(page + i);
+  }
+  return [...pages].filter((p) => p >= 1 && p <= maxPage).sort((a, b) => a - b);
+}
+
+const CardItem = ({ r }: { r: TGetListCampaignHistoryItem }) => {
+  const isWin = !!(r.gift_name || r.gift_image);
+  return (
+    <li
+      className={[
+        "group rounded-2xl p-3 sm:p-4 shadow-sm ring-1 backdrop-blur transition",
+        isWin
+          ? "bg-white/90 ring-black/5 hover:shadow-md"
+          : "bg-neutral-50/80 ring-neutral-200",
+      ].join(" ")}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs text-neutral-500">{fmtDate(r.time)}</div>
+          <div className="mt-0.5 text-sm font-semibold text-neutral-900 truncate">
+            {r.name}
+          </div>
+          <div className="text-xs text-neutral-600 truncate">
+            Số may mắn: #{r.number}
+          </div>
+        </div>
+        <span
+          className={[
+            "shrink-0 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
+            isWin
+              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+              : "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+          ].join(" ")}
+        >
+          {isWin ? "Trúng thưởng" : "Đang chờ"}
+        </span>
+      </div>
+
+      {isWin ? (
+        <>
+          <div className="mt-3 flex items-center gap-3">
+            {r.gift_image ? (
+              <img src={r.gift_image} className="w-20 object-cover" />
+            ) : (
+              <Box className="h-11 w-11 rounded-xl bg-amber-100 grid place-items-center ring-2 ring-amber-200">
+                <Icon icon="zi-file" className="text-amber-700" />
+              </Box>
+            )}
+            <div className="min-w-0">
+              <div className="truncate text-sm font-medium text-neutral-900">
+                {r.gift_name || r.award_name || "Giải thưởng"}
+              </div>
+              <div className="mt-0.5 text-xs text-neutral-500">
+                Trao thưởng: {fmtDate(r.award_time)}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
+              <div className="text-2xs uppercase tracking-wide text-neutral-500">
+                Tên giải
+              </div>
+              <div className="mt-0.5 font-semibold text-neutral-900 truncate">
+                {r.award_name || r.gift_name || "—"}
+              </div>
+            </div>
+            <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
+              <div className="text-2xs uppercase tracking-wide text-neutral-500">
+                Số trúng
+              </div>
+              <div className="mt-0.5 font-semibold text-neutral-900">
+                {r.number}
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="mt-3 rounded-xl border border-dashed border-neutral-300 bg-white/60 p-3 text-center">
+          <div className="text-sm text-neutral-600">Đang chờ kết quả</div>
+        </div>
+      )}
+    </li>
+  );
+};
 
 const HistoryLuckyResultPage = () => {
   const { p } = useSelector((state: RootState) => state.app);
+
   const [q, setQ] = useState("");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [tab, setTab] = useState<TimeFilter>("all");
-  const [programFilter, setProgramFilter] = useState<string>("all");
+
+  // code chương trình đang chọn (KHÔNG có "all")
+  const [programCode, setProgramCode] = useState<string | undefined>(undefined);
+
+  // danh sách chương trình để user chọn
+  const { data: searchCampaigns } = useSearchHistoryCampaignQuery({ k: "" });
+
+  // chuẩn hóa options duy nhất theo code
+  const programOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const arr =
+      (searchCampaigns as TSearchCampaignItem[] | undefined)?.filter((c) => {
+        if (!c?.code) return false;
+        if (seen.has(c.code)) return false;
+        seen.add(c.code);
+        return true;
+      }) ?? [];
+    return arr.map((c) => ({ code: c.code, name: c.name }));
+  }, [searchCampaigns]);
+
+  // nếu chưa có code được chọn → auto chọn chương trình đầu tiên
+  useEffect(() => {
+    if (!programCode && programOptions.length) {
+      setProgramCode(programOptions[0].code);
+    }
+  }, [programOptions, programCode]);
+
+  // gọi API lịch sử theo code chương trình đã chọn
   const { data: listGiftHistory, isLoading: isLoadingListGiftHistory } =
     useGetListCampaignHistoryQuery(
-      {
-        c: "tungbunghethu",
-        p: p,
-      },
-      { skip: !p }
+      { c: programCode ?? "", p },
+      { skip: !p || !programCode }
     );
-  console.log("list");
-  const data: LuckyResult[] = useMemo(
-    () =>
-      listGiftHistory?.map(
-        (item) =>
-          ({
-            targetNumber: +item.number,
-            prizeLabel: item.gift_name || "",
-            prizeImage: item.gift_image || "",
-            programTitle: item.name || "",
-            winnerName: "",
-            winnerPhone: p || "",
-            time: item.time || "",
-            code: item.number.toString(),
-          } as LuckyResult)
-      ) || [],
-    [listGiftHistory]
-  );
 
-  const programs = useMemo(() => {
-    const set = new Set<string>();
-    data.forEach((r) => set.add(r.programTitle || "Khác"));
-    return ["all", ...Array.from(set)];
-  }, [data]);
+  // lọc + sắp xếp + phân trang (toàn danh sách)
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    const byQ = (r: LuckyResult) =>
-      !s ||
-      r.prizeLabel.toLowerCase().includes(s) ||
-      (r.programTitle || "").toLowerCase().includes(s) ||
-      (r.code || "").toLowerCase().includes(s) ||
-      (r.winnerName || "").toLowerCase().includes(s) ||
-      r.winnerPhone.includes(s) ||
-      String(r.targetNumber).includes(s);
-
     const now = new Date();
     const boundary =
       timeFilter === "today"
@@ -122,42 +205,30 @@ const HistoryLuckyResultPage = () => {
         ? startOfMonth(now)
         : null;
 
-    const byProgram = (r: LuckyResult) =>
-      programFilter === "all"
-        ? true
-        : (r.programTitle || "Khác") === programFilter;
+    return (
+      (listGiftHistory ?? [])
+        .filter((r) => {
+          if (!s) return true;
+          const hay =
+            `${r.name} ${r.award_name} ${r.gift_name} ${r.number}`.toLowerCase();
+          return hay.includes(s);
+        })
+        // KHÔNG lọc theo chương trình ở client nữa – API đã lọc theo "c"
+        .filter((r) => (boundary ? new Date(r.time) >= boundary : true))
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    );
+  }, [listGiftHistory, q, timeFilter]);
 
-    return data
-      .filter(byQ)
-      .filter(byProgram)
-      .filter((r) =>
-        boundary ? new Date(r.time || Date.now()) >= boundary : true
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.time || 0).getTime() - new Date(a.time || 0).getTime()
-      );
-  }, [data, q, timeFilter, programFilter]);
+  useEffect(() => {
+    setPage(1);
+  }, [q, timeFilter, programCode]);
 
-  const groups = useMemo(() => {
-    const map = new Map<string, LuckyResult[]>();
-    for (const r of filtered) {
-      const d = r.time ? new Date(r.time) : new Date();
-      const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(r);
-    }
-    return Array.from(map.entries())
-      .sort(([a], [b]) => (a < b ? 1 : -1))
-      .map(([k, list]) => {
-        const [y, m, d] = k.split("-").map((x) => parseInt(x, 10));
-        const dateObj = new Date(y, m - 1, d);
-        const label = isSameDay(dateObj, new Date())
-          ? "Hôm nay"
-          : dateObj.toLocaleDateString();
-        return { label, list };
-      });
-  }, [filtered]);
+  const total = filtered.length;
+  const maxPage = Math.max(1, Math.ceil(total / pageSize));
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const pageItems = filtered.slice(start, end);
+  const nums = usePageNumbers(page, maxPage, 1);
 
   return (
     <Page className="min-h-screen bg-neutral-50">
@@ -165,7 +236,7 @@ const HistoryLuckyResultPage = () => {
       <div className="px-5 pb-4 pt-20">
         <div className="rounded-2xl bg-white border border-neutral-200">
           <Input
-            placeholder="Tìm kiếm chương trình…"
+            placeholder="Tìm kiếm (tên CT/giải/số trúng)…"
             value={q}
             onChange={(e) => setQ((e.target as HTMLInputElement).value)}
             prefix={
@@ -177,6 +248,7 @@ const HistoryLuckyResultPage = () => {
           />
         </div>
 
+        {/* Tabs mốc thời gian */}
         <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
           {TABS.map((t) => {
             const active = tab === t.key;
@@ -185,7 +257,7 @@ const HistoryLuckyResultPage = () => {
                 key={t.key}
                 onClick={() => {
                   setTab(t.key);
-                  setTimeFilter(t.key);
+                  setTimeFilter(t.key as TimeFilter);
                 }}
                 className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
                   active
@@ -199,108 +271,143 @@ const HistoryLuckyResultPage = () => {
           })}
         </div>
 
+        {/* Dải chọn CHƯƠNG TRÌNH – KHÔNG có 'Tất cả' */}
         <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {programs.map((p) => {
-            const active = programFilter === p;
-            return (
-              <button
-                key={p}
-                onClick={() => setProgramFilter(p)}
-                className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
-                  active
-                    ? "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.35)]"
-                    : "bg-white border border-neutral-200 text-neutral-700"
-                }`}
-                title={p === "all" ? "Tất cả chương trình" : p}
-              >
-                {p === "all" ? "Tất cả chương trình" : p}
-              </button>
-            );
-          })}
-          {programFilter !== "all" || timeFilter !== "all" || q ? (
+          {programOptions.length === 0 ? (
+            <span className="text-xs text-neutral-500">
+              Chưa có chương trình khả dụng
+            </span>
+          ) : (
+            programOptions.map((opt) => {
+              const active = programCode === opt.code;
+              return (
+                <button
+                  key={opt.code}
+                  onClick={() => setProgramCode(opt.code)}
+                  className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
+                    active
+                      ? "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.35)]"
+                      : "bg-white border border-neutral-200 text-neutral-700"
+                  }`}
+                  title={opt.name}
+                >
+                  {opt.name}
+                </button>
+              );
+            })
+          )}
+
+          {/* Xóa lọc chỉ reset keyword + time, KHÔNG đổi chương trình */}
+          {(Boolean(q) || timeFilter !== "all") && (
             <Button
               size="small"
               className="ml-1 !h-9 !px-3 !text-xs !bg-neutral-100 !text-neutral-700 hover:!bg-neutral-200"
               onClick={() => {
                 setQ("");
-                setProgramFilter("all");
                 setTimeFilter("all");
                 setTab("all");
               }}
             >
               Xóa lọc
             </Button>
-          ) : null}
+          )}
         </div>
       </div>
 
       <Box className="p-4 space-y-6">
-        {isLoadingListGiftHistory ? (
+        {(!programCode && programOptions.length > 0) ||
+        isLoadingListGiftHistory ? (
           <Box className="grid place-items-center py-16 text-neutral-500">
             <Text className="text-sm">Đang tải…</Text>
           </Box>
-        ) : groups.length === 0 ? (
+        ) : !programCode ? (
+          <Box className="grid place-items-center text-center text-neutral-600 py-16">
+            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
+              <Text className="text-base font-semibold">
+                Chưa chọn chương trình
+              </Text>
+              <Text className="mt-1 text-sm">
+                Hãy chọn một chương trình để xem lịch sử.
+              </Text>
+            </div>
+          </Box>
+        ) : !total ? (
           <Box className="grid place-items-center text-center text-neutral-600 py-16">
             <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
               <Text className="text-base font-semibold">Không có kết quả</Text>
-              <Text className="mt-1 text-sm">Thử đổi từ khóa hoặc bộ lọc.</Text>
+              <Text className="mt-1 text-sm">
+                Thử đổi từ khóa hoặc mốc thời gian.
+              </Text>
             </div>
           </Box>
         ) : (
-          groups.map((g) => (
-            <div key={g.label}>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-600" />
-                <Text className="text-sm font-semibold">{g.label}</Text>
-                <Text className="text-xs text-neutral-500">
-                  {g.list.length} mục
-                </Text>
-              </div>
+          <>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((r, idx) => (
+                <CardItem key={`${r.number}-${r.time}-${start + idx}`} r={r} />
+              ))}
+            </ul>
 
-              <div className="space-y-3">
-                {g.list.map((r, i) => (
-                  <Box
-                    key={`${r.code || r.targetNumber}-${i}`}
-                    className="flex items-center gap-3 rounded-2xl border border-neutral-200 p-3 bg-white hover:shadow-md transition"
-                  >
-                    {r.prizeImage ? (
-                      <Avatar
-                        src={r.prizeImage}
-                        size={44}
-                        className="ring-2 ring-amber-400"
-                      />
-                    ) : (
-                      <Box className="h-11 w-11 rounded-xl bg-amber-100 grid place-items-center ring-2 ring-amber-200">
-                        <Icon icon="zi-add-member" className="text-amber-700" />
-                      </Box>
+            {/* Pagination */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                disabled={page <= 1}
+                onClick={() => setPage(1)}
+              >
+                Đầu
+              </button>
+              <button
+                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Trước
+              </button>
+
+              {usePageNumbers(page, maxPage, 1).map((n, i, arr) => {
+                const prev = arr[i - 1];
+                const showDots = i > 0 && n - (prev ?? n) > 1;
+                return (
+                  <span key={n} className="inline-flex">
+                    {showDots && (
+                      <span className="px-1 text-xs text-neutral-500">…</span>
                     )}
-                    <Box className="min-w-0 flex-1">
-                      <Text className="text-sm font-medium truncate">
-                        {r.prizeLabel}
-                      </Text>
-                      <Text className="text-xs text-neutral-600 truncate">
-                        {r.programTitle || "Chương trình"}
-                      </Text>
-                      <Text className="text-[11px] text-neutral-500 truncate">
-                        {(r.winnerName ? `${r.winnerName} • ` : "") +
-                          maskPhone(r.winnerPhone)}
-                        {r.code ? ` • Mã lượt: ${r.code}` : ""}
-                      </Text>
-                    </Box>
-                    <Box className="text-right">
-                      <Text className="text-[11px] text-neutral-500">
-                        {fmtDate(r.time)}
-                      </Text>
-                      <span className="mt-1 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] bg-neutral-100 text-neutral-700 border-neutral-100">
-                        <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
-                        #{r.targetNumber}
-                      </span>
-                    </Box>
-                  </Box>
-                ))}
-              </div>
+                    <button
+                      onClick={() => setPage(n)}
+                      className={[
+                        "rounded-full px-3 py-1 text-xs font-medium",
+                        n === page
+                          ? "bg-neutral-900 text-white"
+                          : "border text-neutral-700 hover:bg-neutral-50",
+                      ].join(" ")}
+                    >
+                      {n}
+                    </button>
+                  </span>
+                );
+              })}
+
+              <button
+                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                disabled={page >= maxPage}
+                onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
+              >
+                Sau
+              </button>
+              <button
+                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                disabled={page >= maxPage}
+                onClick={() => setPage(maxPage)}
+              >
+                Cuối
+              </button>
+
+              <span className="ml-2 text-xs text-neutral-500">
+                Trang {page}/{maxPage} • {total} mục
+              </span>
             </div>
-          ))
+          </>
         )}
       </Box>
     </Page>
