@@ -23,7 +23,7 @@ import {
   FileText,
   Sparkles,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { openDocument } from "zmp-sdk";
 import {
@@ -189,7 +189,7 @@ const ProgramDetailScreen = () => {
       participants: [],
       results: listResult || [],
     }),
-    [programDetail, listGift, listResult]
+    [programDetail, listGift, listResult, isLoadingListResult]
   );
   const { program, participants, results } = data;
   const [openedMore, setOpenedMore] = useState(false);
@@ -239,7 +239,11 @@ const ProgramDetailScreen = () => {
         setMessageError(error.data.message);
       });
   };
-
+  useEffect(() => {
+    if (!isLoadingProgramDetail && !programDetail?.code) {
+      navigate("/home");
+    }
+  }, [isLoadingProgramDetail, programDetail]);
   return (
     <Page className="relative min-h-screen bg-gradient-to-b from-amber-50 via-neutral-50 to-emerald-50 text-neutral-900">
       <Header
@@ -362,7 +366,9 @@ const ProgramDetailScreen = () => {
           {TABS.map((t) => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => {
+                setTab(t.key);
+              }}
               className={`h-10 rounded-full px-5 text-sm font-medium transition whitespace-nowrap ${
                 tab === t.key
                   ? "bg-gradient-to-r from-emerald-500 to-amber-400 text-white shadow-md"

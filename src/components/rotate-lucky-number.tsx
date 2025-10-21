@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FlipNumbers from "react-flip-numbers";
+import DigitReel from "./digit-flip";
 
 type RotateLuckyNumberProps = {
   targetNumber: number;
@@ -12,31 +12,70 @@ const RotateLuckyNumber = ({
   onComplete,
 }: RotateLuckyNumberProps) => {
   const [play, setPlay] = useState(false);
+  const [stopNumbers, setStopNumbers] = useState<number[]>([]);
+  const [active, setActive] = useState<boolean[]>(Array(6).fill(true));
+  const toggleOne = (i: number) => {
+    setActive((prev) => {
+      const next = [...prev];
+      next[i] = !next[i]; // true => spin, false => stop
+      return next;
+    });
+
+    // optional: choose a random stop number when stopping
+    setStopNumbers((prev) => {
+      const next = [...prev];
+      if (active[i]) next[i] = Math.floor(Math.random() * 10);
+      return next;
+    });
+  };
+  const stopAll = () => {
+    setActive(Array(5).fill(false));
+  };
   useEffect(() => {
     if (openedLucky) {
       setPlay(false);
       setTimeout(() => {
         setPlay(true);
         setTimeout(() => {
+          stopAll();
           onComplete();
-        }, 20000);
+        }, 10000);
       }, 100);
     } else {
       setPlay(false);
     }
   }, [openedLucky]);
+
+  useEffect(() => {
+    if (play) {
+      setActive(Array(5).fill(true));
+    }
+  }, [play]);
+  useEffect(() => {
+    setStopNumbers(
+      targetNumber
+        .toString()
+        .padStart(5, "0")
+        .split("")
+        .map((item) => +item)
+    );
+  }, [targetNumber]);
   return (
-    <FlipNumbers
-      height={40}
-      width={40}
-      color="black"
-      background="white"
-      play={play}
-      perspective={600}
-      duration={play ? 30 : 0}
-      numbers={play ? String(targetNumber) : "00000"}
-      numberClassName="mt-1 text-3xl font-extrabold tracking-tight"
-    />
+    <div className="flex gap-1 items-center justify-center">
+      {play &&
+        stopNumbers?.length > 0 &&
+        active.map((isActive, i) => (
+          <DigitReel
+            key={i}
+            active={isActive}
+            stopNumber={stopNumbers[i]}
+            size={50}
+            speed={700 + i * 80}
+            extraTurns={2}
+            onClick={() => toggleOne(i)}
+          />
+        ))}
+    </div>
   );
 };
 

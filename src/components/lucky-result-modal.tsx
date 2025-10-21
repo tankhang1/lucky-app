@@ -63,7 +63,7 @@ export default function LuckyResultModal({
           </Box>
 
           <Box className="pt-14 px-5 pb-4 text-center">
-            {toggleContinue && (
+            {toggleContinue && result?.targetNumber && (
               <RotateLuckyNumber
                 targetNumber={result.targetNumber}
                 openedLucky={openedLucky}
