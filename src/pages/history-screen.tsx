@@ -73,9 +73,9 @@ const CardItem = ({ r }: { r: TGetListCampaignHistoryItem }) => {
   return (
     <li
       className={[
-        "group rounded-2xl p-3 sm:p-4 shadow-sm ring-1 backdrop-blur transition",
+        "group rounded-2xl p-3 sm:p-4 ring-1 backdrop-blur transition",
         isWin
-          ? "bg-white/90 ring-black/5 hover:shadow-md"
+          ? "bg-white/90 ring-black/5"
           : "bg-neutral-50/80 ring-neutral-200",
       ].join(" ")}
     >
@@ -273,7 +273,7 @@ const HistoryLuckyResultPage = () => {
                 }}
                 className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
                   active
-                    ? "bg-brand-gradient text-white shadow-[0_10px_24px_rgba(0,0,0,0.10)]"
+                    ? "bg-brand-gradient text-white"
                     : "bg-white border border-neutral-200 text-neutral-700"
                 }`}
               >
@@ -298,7 +298,7 @@ const HistoryLuckyResultPage = () => {
                   onClick={() => setProgramCode(opt.code)}
                   className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
                     active
-                      ? "bg-amber-500 text-white shadow-[0_8px_18px_rgba(245,158,11,0.35)]"
+                      ? "bg-amber-500 text-white"
                       : "bg-white border border-neutral-200 text-neutral-700"
                   }`}
                   title={opt.name}
@@ -334,7 +334,7 @@ const HistoryLuckyResultPage = () => {
           </Box>
         ) : !programCode ? (
           <Box className="grid place-items-center text-center text-neutral-600 py-16">
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
+            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12">
               <Text className="text-base font-semibold">
                 Chưa chọn chương trình
               </Text>
@@ -345,7 +345,7 @@ const HistoryLuckyResultPage = () => {
           </Box>
         ) : !total ? (
           <Box className="grid place-items-center text-center text-neutral-600 py-16">
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 shadow-[0_16px_50px_rgba(0,0,0,0.08)]">
+            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12">
               <Text className="text-base font-semibold">Không có kết quả</Text>
               <Text className="mt-1 text-sm">
                 Thử đổi từ khóa hoặc mốc thời gian.

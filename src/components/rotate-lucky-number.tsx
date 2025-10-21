@@ -39,7 +39,7 @@ const RotateLuckyNumber = ({
         setTimeout(() => {
           stopAll();
           onComplete();
-        }, 10000);
+        }, 5000);
       }, 100);
     } else {
       setPlay(false);

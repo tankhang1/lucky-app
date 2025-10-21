@@ -16,6 +16,7 @@ import {
 } from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
 import {
+  BadgeCheck,
   CalendarRange,
   ChevronDown,
   ChevronUp,
@@ -97,7 +98,7 @@ const StatusPill = ({ status }: { status: Program["status"] }) => {
       ? "bg-amber-500"
       : "bg-neutral-400";
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1 text-xs font-medium shadow ring-1 ring-neutral-200">
+    <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1 text-xs font-medium ring-1 ring-neutral-200">
       <span className={`h-2 w-2 rounded-full ${dot}`} />
       {text}
     </span>
@@ -254,7 +255,7 @@ const ProgramDetailScreen = () => {
       />
 
       <Box>
-        <div className="overflow-hidden bg-white shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-neutral-200">
+        <div className="overflow-hidden bg-white ring-1 ring-neutral-200">
           <div className="relative w-full aspect-[16/9]">
             {program.banner ? (
               <img
@@ -293,19 +294,14 @@ const ProgramDetailScreen = () => {
                     <CalendarRange className="h-4 w-4" />
                     {program.time}
                   </span>
-                  {!!program.slogan && (
+                  {program?.joined && (
                     <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
-                      <Sparkles className="h-4 w-4 text-amber-500" />
-                      {program.slogan}
-                    </span>
-                  )}
-                  {program?.joined ? (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-600/90 text-white px-3 py-1 text-xs shadow">
-                      Đã tham gia
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-yellow-400 text-orange-400 px-3 py-1 text-xs shadow">
-                      Chưa tham gia
+                      <BadgeCheck
+                        className={`h-4 w-4 ${
+                          program?.joined ? "text-green-500" : "text-yellow-500"
+                        }`}
+                      />
+                      {program?.joined ? "Đã tham gia" : "Chưa tham gia"}
                     </span>
                   )}
                 </div>
@@ -371,7 +367,7 @@ const ProgramDetailScreen = () => {
               }}
               className={`h-10 rounded-full px-5 text-sm font-medium transition whitespace-nowrap ${
                 tab === t.key
-                  ? "bg-gradient-to-r from-emerald-500 to-amber-400 text-white shadow-md"
+                  ? "bg-gradient-to-r from-emerald-500 to-amber-400 text-white"
                   : "bg-white/80 backdrop-blur border border-neutral-200 text-neutral-700 hover:bg-white"
               }`}
             >
@@ -382,7 +378,7 @@ const ProgramDetailScreen = () => {
 
         {tab === "prizes" &&
           (isLoadingListGift ? (
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center py-4">
               <Spinner />
             </div>
           ) : (
@@ -411,20 +407,30 @@ const ProgramDetailScreen = () => {
             </Text>
           </div>
           <Button
-            disabled={program.status !== "open"}
+            disabled={
+              program.status !== "open" ||
+              programDetail?.number_get === programDetail?.number_limit
+            }
             onClick={onRandomSingle}
             loading={isLoadingRequestLuckyNumber}
             className="h-12 flex-1 rounded-xl !border !border-neutral-600 font-semibold text-neutral-900 bg-white hover:bg-neutral-50"
           >
-            Quay 1 giải
+            Chọn 1 số
           </Button>
           <Button
-            disabled={program.status !== "open"}
+            disabled={
+              program.status !== "open" ||
+              programDetail?.number_get === programDetail?.number_limit
+            }
             loading={isLoadingRequestAllLuckyNumber}
             onClick={() => setConfirmedModal(true)}
-            className="h-12 flex-1 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-400 text-white font-semibold"
+            className={`h-12 flex-1 rounded-xl !bg-emerald-500 text-white font-semibold ${
+              (program.status !== "open" ||
+                programDetail?.number_get === programDetail?.number_limit) &&
+              "!bg-gray-500"
+            }`}
           >
-            Quay tất cả
+            Chọn tất cả
           </Button>
         </div>
       </Box>
@@ -433,6 +439,9 @@ const ProgramDetailScreen = () => {
         openedLucky={openedLucky}
         onClose={() => setOpenedLucky(false)}
         onContinue={onRandomSingle}
+        isDisabledContinue={
+          programDetail?.number_get === programDetail?.number_limit
+        }
         result={{
           prizeLabel: resultLuckyNumber?.gift_name || "",
           targetNumber: resultLuckyNumber?.number || 0,

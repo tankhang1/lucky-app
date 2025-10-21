@@ -21,6 +21,7 @@ type Props = {
   onClose: () => void;
   onContinue?: () => void;
   result: LuckyResult;
+  isDisabledContinue: boolean;
 };
 
 const maskPhone = (p: string) =>
@@ -31,6 +32,7 @@ export default function LuckyResultModal({
   onClose,
   onContinue,
   result,
+  isDisabledContinue,
 }: Props) {
   const [toggleContinue, setToggleContinue] = useState(true);
   const [revealed, setRevealed] = useState(false);
@@ -111,8 +113,13 @@ export default function LuckyResultModal({
                 Đóng
               </Button>
               <Button
+                disabled={isDisabledContinue}
                 variant="primary"
-                className="!bg-amber-500 !hover:bg-amber-600"
+                className={`${
+                  !isDisabledContinue
+                    ? "!bg-amber-500 !text-white"
+                    : "!bg-gray-400 !text-black"
+                }`}
                 onClick={() => {
                   setRevealed(false);
                   setToggleContinue(false);
