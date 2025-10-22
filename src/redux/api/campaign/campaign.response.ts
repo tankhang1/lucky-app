@@ -19,6 +19,8 @@ export type TGetCampaignDetailRes = {
   description: string;
   number_limit: number;
   time: string;
+  time_end: string;
+  time_start: string;
   status: number;
 };
 

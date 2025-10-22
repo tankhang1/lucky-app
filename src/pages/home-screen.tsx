@@ -7,7 +7,7 @@ import { RootState } from "@/redux/store";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Page, Box, Input, Text, Icon, useNavigate, Spinner } from "zmp-ui";
-
+import Logo from "@/assets/logo.png";
 type Program = {
   id: string;
   title: string;
@@ -100,7 +100,7 @@ const Card = ({
           </Text>
         </div>
         <div className="mt-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-2 rounded-xl bg-brand-gradient px-4 py-2 text-sm font-medium text-white shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
+          <span className="inline-flex items-center gap-2 rounded-xl bg-[#009345] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
             Xem chi tiết
             <Icon icon="zi-chevron-right" size={16} className="opacity-90" />
           </span>
@@ -151,31 +151,29 @@ const HomeScreen = () => {
     },
     { skip: !p }
   );
-  const listAllCapaigns = useMemo(
-    () => [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
-    [listActiveCampaigns, listExpiredCampaigns]
-  );
+
   const mapDtoData = useMemo(
     () =>
       (tab === "open"
         ? listActiveCampaigns
         : tab === "closed"
         ? listExpiredCampaigns
-        : listAllCapaigns
+        : [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])]
       )?.map((item) => dtoCampaign(item)) || [],
-    [listActiveCampaigns, listExpiredCampaigns]
+    [tab, listActiveCampaigns, listExpiredCampaigns]
   );
   const counts = useMemo(() => {
     const c = {
-      all: mapDtoData.length,
-      open: 0,
+      all:
+        (listExpiredCampaigns?.length || 0) +
+        (listActiveCampaigns?.length || 0),
+      open: listActiveCampaigns?.length || 0,
       upcoming: 0,
-      closed: 0,
+      closed: listExpiredCampaigns?.length || 0,
       joined: 0,
     } as Record<"all" | Program["status"], number>;
-    mapDtoData.forEach((p) => (c[p.status] = (c[p.status] || 0) + 1));
     return c;
-  }, [mapDtoData]);
+  }, [listActiveCampaigns, listExpiredCampaigns]);
 
   const list = useMemo(() => {
     const byQ = (p: Program) =>
@@ -199,12 +197,8 @@ const HomeScreen = () => {
     <Page className="relative min-h-screen bg-neutral-50 text-neutral-900">
       <Box className="sticky top-0 z-30 border-b border-neutral-200 bg-white">
         <div className="px-5 py-3 flex items-center gap-3 pt-14">
-          <img
-            src="https://www.mappacific.com/wp-content/uploads/2021/08/logo.png"
-            alt=""
-            className="h-8 w-auto object-contain"
-          />
-          <Text className="text-base font-semibold">Mappacific Programs</Text>
+          <img src={Logo} alt="" className="h-8 w-auto object-contain" />
+          <Text className="text-base font-bold">CHỌN SỐ MAY MẮN</Text>
         </div>
         <div className="px-5 pb-4">
           <div className="rounded-2xl bg-neutral-50 border border-neutral-200">
@@ -218,7 +212,7 @@ const HomeScreen = () => {
                 </Box>
               }
               clearable
-              className="!bg-neutral-50 !border-0 !rounded-2xl"
+              className="!bg-neutral-50 !border-0 !rounded-2xl h-9"
             />
           </div>
 
@@ -234,7 +228,7 @@ const HomeScreen = () => {
                     onClick={() => setTab(t.key)}
                     className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
                       active
-                        ? "bg-brand-gradient text-white"
+                        ? "bg-[#009345] text-white"
                         : "bg-white border border-neutral-200 text-neutral-700"
                     }`}
                   >

@@ -256,7 +256,7 @@ const HistoryLuckyResultPage = () => {
                 <Icon icon="zi-search" className="text-neutral-400" />
               </Box>
             }
-            className="!bg-white !border-0 !rounded-2xl"
+            className="!bg-white !border-0 !rounded-2xl h-9"
           />
         </div>
 
@@ -273,7 +273,7 @@ const HistoryLuckyResultPage = () => {
                 }}
                 className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
                   active
-                    ? "bg-brand-gradient text-white"
+                    ? "bg-[#009345] text-white"
                     : "bg-white border border-neutral-200 text-neutral-700"
                 }`}
               >
@@ -298,7 +298,7 @@ const HistoryLuckyResultPage = () => {
                   onClick={() => setProgramCode(opt.code)}
                   className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
                     active
-                      ? "bg-amber-500 text-white"
+                      ? "bg-[#E2672E] text-white"
                       : "bg-white border border-neutral-200 text-neutral-700"
                   }`}
                   title={opt.name}

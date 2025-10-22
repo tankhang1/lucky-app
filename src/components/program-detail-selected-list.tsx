@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
-import { Box, Text, Avatar, Button } from "zmp-ui";
+import { Text } from "zmp-ui";
 
-type Prize = {
-  id: string | number;
-  label: string;
-  rewardName: string;
-  image?: string;
-  count: number;
+type SelectedItem = {
+  number: number;
+  isWin: boolean;
 };
 
 function usePageNumbers(page: number, maxPage: number, span = 1) {
@@ -18,23 +15,23 @@ function usePageNumbers(page: number, maxPage: number, span = 1) {
   return [...pages].filter((p) => p >= 1 && p <= maxPage).sort((a, b) => a - b);
 }
 
-export function PrizesList({
-  prizes,
-  pageSize = 6,
+export function SelectedNumberList({
+  numbers,
+  pageSize = 12,
 }: {
-  prizes: Prize[];
+  numbers: SelectedItem[];
   pageSize?: number;
 }) {
   const [page, setPage] = useState(1);
 
-  const total = prizes?.length ?? 0;
+  const total = numbers?.length ?? 0;
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = useMemo(
-    () => prizes.slice(start, end),
-    [prizes, start, end]
+    () => numbers.slice(start, end),
+    [numbers, start, end]
   );
   const nums = usePageNumbers(page, maxPage, 1);
 
@@ -49,44 +46,17 @@ export function PrizesList({
 
   return (
     <>
-      <div className="grid gap-4 grid-cols-2">
-        {pageItems.map((p) => (
-          <div key={p.id} className="rounded-xl bg-white overflow-hidden">
-            {/* Ảnh giải thưởng */}
-            <div className="relative w-44 h-36 border-b-[0.25px]">
-              {p.image ? (
-                <img
-                  src={p.image}
-                  alt={p.rewardName}
-                  className="h-36 w-44 object-contain"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="h-full w-full bg-neutral-100" />
-              )}
-              <div className="absolute left-[-16px] top-0 pl-3">
-                <span className="inline-block rounded-br-xl bg-emerald-600 text-white px-3 py-1 text-xs font-semibold shadow">
-                  {p.label}
-                </span>
-              </div>
-            </div>
-
-            {/* Nội dung */}
-            <div className="flex flex-col justify-center px-4 min-w-0 flex-1 py-4">
-              <div>
-                <Text className="text-base text-center font-semibold truncate">
-                  {p.rewardName}
-                </Text>
-              </div>
-
-              {/* Hiển thị tùy chọn số lượng */}
-              {p.count !== undefined && (
-                <div className="mt-2 flex items-center justify-center gap-3">
-                  <Text className="text-xs text-neutral-500">Số lượng:</Text>
-                  <Text className="text-base font-semibold">{p.count}</Text>
-                </div>
-              )}
-            </div>
+      <div className="grid grid-cols-5 gap-2">
+        {pageItems.map((num, index) => (
+          <div
+            key={index}
+            className={`flex items-center justify-center h-10 rounded-lg text-sm font-medium shadow-sm border transition-all duration-200 ${
+              num.isWin
+                ? "bg-emerald-500 text-white border-emerald-500"
+                : "bg-gray-100 text-gray-500 border-gray-200"
+            }`}
+          >
+            {num.number}
           </div>
         ))}
       </div>

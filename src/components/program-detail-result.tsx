@@ -21,7 +21,7 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
         <div className="min-w-0">
           <div className="text-xs text-neutral-500">{formatDT(r.time)}</div>
           <div className="mt-1 text-sm font-semibold tracking-wide text-neutral-900">
-            Số may mắn #{r.number}
+            Số may mắn {r.number}
           </div>
         </div>
         <span
@@ -38,25 +38,6 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
 
       {isWin ? (
         <>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl ring-1 ring-black/5">
-              <img
-                src={r.gift_image}
-                alt={r.gift_name}
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-medium text-neutral-900">
-                {r.gift_name}
-              </div>
-              <div className="mt-0.5 text-xs text-neutral-500">
-                Trao thưởng: {formatDT(r.award_time)}
-              </div>
-            </div>
-          </div>
-
           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
               <div className="text-2xs uppercase tracking-wide text-neutral-500">
@@ -68,7 +49,7 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
             </div>
             <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
               <div className="text-2xs uppercase tracking-wide text-neutral-500">
-                Số trúng
+                Số may mắn
               </div>
               <div className="mt-0.5 font-semibold text-neutral-900">
                 {r.number}

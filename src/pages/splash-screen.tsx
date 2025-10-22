@@ -27,7 +27,7 @@ import {
   Modal,
   Stack,
 } from "zmp-ui";
-
+import Logo from "@/assets/logo.png";
 const SplashScreen = () => {
   const dispatch = useDispatch();
   const [phone, setPhone] = useState("");
@@ -176,12 +176,12 @@ const SplashScreen = () => {
               <Box className="rounded-3xl bg-white/80 backdrop-blur-md shadow-xl ring-1 ring-white/60 p-8 sm:p-10">
                 <Box className="flex flex-col items-center gap-3">
                   <img
-                    src="https://www.mappacific.com/wp-content/uploads/2021/08/logo.png"
+                    src={Logo}
                     alt="Mappacific"
                     className="mx-auto h-16 sm:h-20 w-auto object-contain"
                   />
                   <Text className="text-lg sm:text-2xl tracking-tight font-bold">
-                    Mappacific Portal
+                    CHỌN SỐ MAY MẮN
                   </Text>
                   <Text className="text-xs text-neutral-500">
                     Đăng nhập để tiếp tục trải nghiệm

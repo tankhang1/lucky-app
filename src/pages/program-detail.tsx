@@ -3,6 +3,7 @@ import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import LuckyResultModal from "@/components/lucky-result-modal";
 import { PrizesList } from "@/components/program-detail-prizes";
 import { ResultsGrid } from "@/components/program-detail-result";
+import { SelectedNumberList } from "@/components/program-detail-selected-list";
 import {
   useGetCampaignDetailQuery,
   useGetListCampaignHistoryQuery,
@@ -15,8 +16,12 @@ import {
   TResultLuckyNumberItem,
 } from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
+import dayjs from "dayjs";
 import {
   BadgeCheck,
+  CalendarCogIcon,
+  CalendarDays,
+  CalendarOff,
   CalendarRange,
   ChevronDown,
   ChevronUp,
@@ -68,7 +73,8 @@ type Program = {
   description?: string;
   rules?: string[];
   status: "open" | "closed" | "upcoming";
-  time: string;
+  time_end: string;
+  time_start: string;
   banner?: string;
   prizes: Prize[];
   joined?: boolean;
@@ -80,6 +86,7 @@ const maskPhone = (p: string) =>
 
 const TABS = [
   { key: "prizes", label: "Giải thưởng" },
+  { key: "selected", label: "Số đã chọn" },
   { key: "results", label: "Kết quả" },
 ] as const;
 type TabKey = (typeof TABS)[number]["key"];
@@ -178,7 +185,8 @@ const ProgramDetailScreen = () => {
             image: gift.gift_image || "",
           })) || []),
         ],
-        time: programDetail?.time || "",
+        time_end: programDetail?.time_end || "",
+        time_start: programDetail?.time_start || "",
         title: programDetail?.name || "",
         banner: programDetail?.banner || "",
         code: programDetail?.code || "",
@@ -267,18 +275,18 @@ const ProgramDetailScreen = () => {
               <div className="h-full w-full bg-neutral-100" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-            <div className="absolute left-3 top-7">
+            {/* <div className="absolute left-3 top-7">
               <StatusPill status={program.status} />
-            </div>
+            </div> */}
             <div className="absolute left-4 right-4 bottom-4">
               <Text className="text-white text-xl font-semibold drop-shadow">
                 {program.title}
               </Text>
-              {!!program.code && (
+              {/* {!!program.code && (
                 <div className="mt-1 text-white/90 text-sm">
                   Mã: {program.code}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -288,28 +296,36 @@ const ProgramDetailScreen = () => {
             </div>
           ) : (
             <div className="p-4 sm:p-5">
-              <div className="flex justify-between items-start">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
-                    <CalendarRange className="h-4 w-4" />
-                    {program.time}
-                  </span>
-                  {program?.joined && (
-                    <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-neutral-700 shadow-sm ring-1 ring-neutral-200">
-                      <BadgeCheck
-                        className={`h-4 w-4 ${
-                          program?.joined ? "text-green-500" : "text-yellow-500"
-                        }`}
-                      />
-                      {program?.joined ? "Đã tham gia" : "Chưa tham gia"}
+              <div className="flex justify-between items-center">
+                {/* Ngày bắt đầu & kết thúc */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 text-xs text-neutral-700">
+                  <div className="flex items-center gap-1">
+                    <CalendarDays className="h-4 w-4 text-emerald-600" />
+                    <span>
+                      Ngày diễn ra sự kiện:&nbsp;
+                      <strong>
+                        {dayjs(program.time_start).format("DD/MM/YYYY")}
+                      </strong>
                     </span>
-                  )}
+                  </div>
+
+                  <div className="flex items-center gap-1 mt-1 sm:mt-0">
+                    <CalendarOff className="h-4 w-4 text-rose-600" />
+                    <span>
+                      Ngày kết thúc chọn số:&nbsp;
+                      <strong>
+                        {dayjs(program.time_end).format("DD/MM/YYYY")}
+                      </strong>
+                    </span>
+                  </div>
                 </div>
+
+                {/* Nút xem chi tiết PDF */}
                 <button
                   onClick={openPDF}
-                  className="inline-flex items-center gap-1 rounded-md bg-white border text-white p-2 text-[11px] font-medium  shadow-sm"
+                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm"
                 >
-                  <FileText className="w-4 h-4 text-black" />
+                  <FileText className="w-4 h-4 text-neutral-700" />
                 </button>
               </div>
 
@@ -367,7 +383,7 @@ const ProgramDetailScreen = () => {
               }}
               className={`h-10 rounded-full px-5 text-sm font-medium transition whitespace-nowrap ${
                 tab === t.key
-                  ? "bg-gradient-to-r from-emerald-500 to-amber-400 text-white"
+                  ? "bg-[#009345] text-white"
                   : "bg-white/80 backdrop-blur border border-neutral-200 text-neutral-700 hover:bg-white"
               }`}
             >
@@ -386,7 +402,22 @@ const ProgramDetailScreen = () => {
               <PrizesList prizes={program.prizes} pageSize={6} />
             </div>
           ))}
-
+        {tab === "selected" &&
+          (isLoadingListResult ? (
+            <div className="flex justify-center items-center py-4">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="mt-5">
+              <SelectedNumberList
+                numbers={(results || []).map((item) => ({
+                  isWin: item?.award_name ? true : false,
+                  number: +item.number,
+                }))}
+                pageSize={30}
+              />
+            </div>
+          ))}
         {tab === "results" &&
           (isLoadingListResult ? (
             <div className="flex justify-center items-center">
@@ -415,7 +446,7 @@ const ProgramDetailScreen = () => {
             loading={isLoadingRequestLuckyNumber}
             className="h-12 flex-1 rounded-xl !border !border-neutral-600 font-semibold text-neutral-900 bg-white hover:bg-neutral-50"
           >
-            Chọn 1 số
+            Chọn 01 số
           </Button>
           <Button
             disabled={
@@ -424,7 +455,7 @@ const ProgramDetailScreen = () => {
             }
             loading={isLoadingRequestAllLuckyNumber}
             onClick={() => setConfirmedModal(true)}
-            className={`h-12 flex-1 rounded-xl !bg-emerald-500 text-white font-semibold ${
+            className={`h-12 flex-1 rounded-xl bg-[#E2672E] text-white font-semibold ${
               (program.status !== "open" ||
                 programDetail?.number_get === programDetail?.number_limit) &&
               "!bg-gray-500"
