@@ -121,7 +121,7 @@ export function PrizesList({
                   className={[
                     "rounded-full px-3 py-1 text-xs font-medium",
                     n === page
-                      ? "bg-neutral-900 text-white"
+                      ? "bg-[#009345] text-white"
                       : "border text-neutral-700 hover:bg-neutral-50",
                   ].join(" ")}
                 >

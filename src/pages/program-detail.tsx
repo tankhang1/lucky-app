@@ -455,7 +455,7 @@ const ProgramDetailScreen = () => {
             }
             loading={isLoadingRequestAllLuckyNumber}
             onClick={() => setConfirmedModal(true)}
-            className={`h-12 flex-1 rounded-xl bg-[#E2672E] text-white font-semibold ${
+            className={`h-12 flex-1 rounded-xl bg-[#E2672E] hover:bg-[#d56632] text-white font-semibold ${
               (program.status !== "open" ||
                 programDetail?.number_get === programDetail?.number_limit) &&
               "!bg-gray-500"

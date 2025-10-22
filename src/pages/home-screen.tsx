@@ -89,7 +89,7 @@ const Card = ({
 
       <div className="p-4 h-56 flex flex-col">
         <div className="flex-1">
-          <Text className="text-[16px] font-semibold leading-snug line-clamp-2 text-neutral-900">
+          <Text className="text-[16px] font-semibold leading-snug line-clamp-1 text-neutral-900">
             {p.title}
           </Text>
           <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-600">

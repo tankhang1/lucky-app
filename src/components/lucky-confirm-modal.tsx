@@ -22,7 +22,7 @@ const LuckConfirmModal = ({ opened, onClose, onConfirm }: Props) => {
 
         <Box className="mt-5 flex items-center justify-center gap-3">
           <Button
-            className="h-10 rounded-xl text-white font-semibold shadow-lg active:scale-[0.99] transition bg-gradient-to-r from-emerald-500 to-amber-400 hover:opacity-95"
+            className="h-10 rounded-xl text-white font-semibold shadow-lg active:scale-[0.99] transition bg-[#E2672E] hover:bg-[#d56632]"
             onClick={() => {
               onConfirm();
             }}
