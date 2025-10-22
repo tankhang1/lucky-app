@@ -136,7 +136,7 @@ export default function LuckyResultModal({
             <Box className="mt-4 flex items-center justify-center gap-1 text-amber-600">
               <Text className="text-xs font-medium">
                 {!revealed
-                  ? "🎡 Đang quay... Hãy cùng chờ xem vận may của bạn hôm nay!"
+                  ? "🎡 Đang chọn số... Hãy cùng chờ xem vận may của bạn hôm nay!"
                   : result.prizeImage
                   ? "🎉 Xin chúc mừng! Bạn đã trúng thưởng thật tuyệt vời!"
                   : "✨ Số may mắn của bạn đã được bật mí hãy cùng chờ kết quả nhé!"}

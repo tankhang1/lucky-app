@@ -60,7 +60,7 @@ export default function ListLuckyResultModal({
 
           <Box className="pt-14 px-5 pb-4 text-center">
             <Text className="text-xs uppercase tracking-widest text-amber-600">
-              Kết quả quay số
+              Kết quả chọn số
             </Text>
 
             <Box className="mt-4">

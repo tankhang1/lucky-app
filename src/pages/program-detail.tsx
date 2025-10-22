@@ -432,7 +432,7 @@ const ProgramDetailScreen = () => {
       <Box className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/85 backdrop-blur">
         <div className="px-4 py-3 flex items-center gap-3">
           <div className="flex-1">
-            <Text className="text-xs text-neutral-600">Số lượt quay</Text>
+            <Text className="text-xs text-neutral-600">Chọn số</Text>
             <Text className="text-lg font-bold">
               {programDetail?.number_get}/{programDetail?.number_limit}
             </Text>

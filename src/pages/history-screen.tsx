@@ -244,7 +244,7 @@ const HistoryLuckyResultPage = () => {
 
   return (
     <Page className="min-h-screen bg-neutral-50">
-      <Header title="Lịch sử quay thưởng" className="relative" />
+      <Header title="Lịch sử trúng thưởng" className="relative" />
       <div className="px-5 pb-4 pt-5">
         <div className="rounded-2xl bg-white border border-neutral-200">
           <Input

@@ -14,10 +14,10 @@ const LuckConfirmModal = ({ opened, onClose, onConfirm }: Props) => {
           className="mx-auto mb-4"
         />
         <Text className="text-lg sm:text-xl font-semibold">
-          Xác nhận quay số
+          Xác nhận chọn số
         </Text>
         <Text className="text-xs text-neutral-500 mt-1">
-          Bạn có chắc chắn muốn quay số không?
+          Bạn có chắc chắn muốn chọn số không?
         </Text>
 
         <Box className="mt-5 flex items-center justify-center gap-3">
