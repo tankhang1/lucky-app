@@ -24,14 +24,35 @@ export function SelectedNumberList({
 }) {
   const [page, setPage] = useState(1);
 
-  const total = numbers?.length ?? 0;
+  // ✅ Group duplicates
+  const groupedNumbers = useMemo(() => {
+    const map = new Map<number, { count: number; isWin: boolean }>();
+    for (const item of numbers) {
+      if (map.has(item.number)) {
+        const existing = map.get(item.number)!;
+        map.set(item.number, {
+          count: existing.count + 1,
+          isWin: existing.isWin || item.isWin, // if any one wins, mark it as win
+        });
+      } else {
+        map.set(item.number, { count: 1, isWin: item.isWin });
+      }
+    }
+    return Array.from(map.entries()).map(([number, { count, isWin }]) => ({
+      number,
+      count,
+      isWin,
+    }));
+  }, [numbers]);
+
+  const total = groupedNumbers.length;
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = useMemo(
-    () => numbers.slice(start, end),
-    [numbers, start, end]
+    () => groupedNumbers.slice(start, end),
+    [groupedNumbers, start, end]
   );
   const nums = usePageNumbers(page, maxPage, 1);
 
@@ -50,13 +71,18 @@ export function SelectedNumberList({
         {pageItems.map((num, index) => (
           <div
             key={index}
-            className={`flex items-center justify-center h-10 rounded-lg text-sm font-medium shadow-sm border transition-all duration-200 ${
+            className={`relative flex items-center justify-center h-10 rounded-lg text-sm font-medium shadow-sm border transition-all duration-200 ${
               num.isWin
                 ? "bg-emerald-500 text-white border-emerald-500"
                 : "bg-gray-100 text-gray-500 border-gray-200"
             }`}
           >
             {num.number}
+            {num.count > 1 && (
+              <span className="absolute -top-1 -right-1 rounded-full bg-amber-500 text-white text-[10px] font-semibold px-1.5 py-[1px] leading-none shadow">
+                x{num.count}
+              </span>
+            )}
           </div>
         ))}
       </div>
@@ -117,7 +143,7 @@ export function SelectedNumberList({
           </button>
 
           <span className="ml-2 text-xs text-neutral-500">
-            Trang {page}/{maxPage} • {total} giải
+            Trang {page}/{maxPage} • {numbers.length} giải
           </span>
         </div>
       )}
