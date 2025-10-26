@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Text } from "zmp-ui";
 
@@ -24,63 +25,45 @@ export function SelectedNumberList({
 }) {
   const [page, setPage] = useState(1);
 
-  // ✅ Group duplicates
-  const groupedNumbers = useMemo(() => {
-    const map = new Map<number, { count: number; isWin: boolean }>();
-    for (const item of numbers) {
-      if (map.has(item.number)) {
-        const existing = map.get(item.number)!;
-        map.set(item.number, {
-          count: existing.count + 1,
-          isWin: existing.isWin || item.isWin, // if any one wins, mark it as win
-        });
-      } else {
-        map.set(item.number, { count: 1, isWin: item.isWin });
-      }
-    }
-    return Array.from(map.entries()).map(([number, { count, isWin }]) => ({
-      number,
-      count,
-      isWin,
-    }));
-  }, [numbers]);
-
-  const total = groupedNumbers.length;
+  const total = numbers.length;
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = useMemo(
-    () => groupedNumbers.slice(start, end),
-    [groupedNumbers, start, end]
+    () => numbers.slice(start, end),
+    [numbers, start, end]
   );
   const nums = usePageNumbers(page, maxPage, 1);
 
   if (!total) {
     return (
       <div className="rounded-2xl border border-dashed border-neutral-300 bg-white/70 backdrop-blur px-6 py-10 text-center text-neutral-600">
-        <Text className="font-semibold">Chưa cấu hình giải thưởng</Text>
-        <Text className="mt-1 text-sm">Thêm giải để bắt đầu chương trình.</Text>
+        <Text className="font-semibold">Chưa chọn số</Text>
+        <Text className="mt-1 text-sm">Vui lòng chọn số may mắn</Text>
       </div>
     );
   }
 
   return (
     <>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-5 gap-2 justify-items-center">
         {pageItems.map((num, index) => (
           <div
             key={index}
-            className={`relative flex items-center justify-center h-10 rounded-lg text-sm font-medium shadow-sm border transition-all duration-200 ${
+            className={`relative flex items-center justify-center h-12 w-12 rounded-full text-base font-semibold border shadow-sm transition-all duration-200 ${
               num.isWin
                 ? "bg-emerald-500 text-white border-emerald-500"
-                : "bg-gray-100 text-gray-500 border-gray-200"
+                : "bg-gray-100 text-gray-600 border-gray-200"
             }`}
           >
-            {num.number}
-            {num.count > 1 && (
-              <span className="absolute -top-1 -right-1 rounded-full bg-amber-500 text-white text-[10px] font-semibold px-1.5 py-[1px] leading-none shadow">
-                x{num.count}
+            <span className="flex items-center justify-center leading-none">
+              {num.number}
+            </span>
+
+            {num.isWin && (
+              <span className="absolute -top-1.5 -right-1.5">
+                <Star size={12} color="orange" />
               </span>
             )}
           </div>
@@ -143,7 +126,7 @@ export function SelectedNumberList({
           </button>
 
           <span className="ml-2 text-xs text-neutral-500">
-            Trang {page}/{maxPage} • {numbers.length} giải
+            Trang {page}/{maxPage} • {numbers.length} số
           </span>
         </div>
       )}

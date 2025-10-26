@@ -1,12 +1,14 @@
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
+import LuckyOptionModal from "@/components/lucky-confirm-option-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import LuckyResultModal from "@/components/lucky-result-modal";
 import { PrizesList } from "@/components/program-detail-prizes";
 import { ResultsGrid } from "@/components/program-detail-result";
 import { SelectedNumberList } from "@/components/program-detail-selected-list";
+import LuckyNumbersSection from "@/components/program-detail-selected-section";
+import SegmentedTabs from "@/components/segmented-tabs";
 import {
   useGetCampaignDetailQuery,
-  useGetListCampaignHistoryQuery,
   useGetListGiftQuery,
   useGetListResultNumberQuery,
   useRequestLuckNumberMutation,
@@ -18,16 +20,11 @@ import {
 import { RootState } from "@/redux/store";
 import dayjs from "dayjs";
 import {
-  BadgeCheck,
-  CalendarCogIcon,
   CalendarDays,
   CalendarOff,
-  CalendarRange,
   ChevronDown,
   ChevronUp,
-  FileDown,
   FileText,
-  Sparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -43,6 +40,7 @@ import {
   Stack,
   useParams,
   useNavigate,
+  Progress,
 } from "zmp-ui";
 
 type Prize = {
@@ -58,13 +56,7 @@ type Participant = {
   phone: string;
   joinedAt: string;
 };
-type ResultItem = {
-  drawId: string;
-  prizeId: string;
-  prizeLabel: string;
-  winner: { name?: string; phone: string };
-  time: string;
-};
+
 type Program = {
   id: string;
   title: string;
@@ -81,20 +73,16 @@ type Program = {
   pdf: string;
 };
 
-const maskPhone = (p: string) =>
-  p.replace(/\D/g, "").replace(/(\d{3})\d+(\d{3})$/, "$1***$2");
-
 const TABS = [
   { key: "prizes", label: "Giải thưởng" },
   { key: "selected", label: "Số đã chọn" },
   { key: "results", label: "Kết quả" },
 ] as const;
-type TabKey = (typeof TABS)[number]["key"];
 
 const StatusPill = ({ status }: { status: Program["status"] }) => {
   const text =
     status === "open"
-      ? "Đang bật"
+      ? "Đang diễn ra"
       : status === "upcoming"
       ? "Sắp diễn ra"
       : "Đã kết thúc";
@@ -169,6 +157,7 @@ const ProgramDetailScreen = () => {
   const [listResultLuckyNumber, setListResultLuckyNumber] = useState<
     TLuckResultItem[]
   >([]);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const [messageError, setMessageError] = useState("");
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
@@ -202,10 +191,9 @@ const ProgramDetailScreen = () => {
   );
   const { program, participants, results } = data;
   const [openedMore, setOpenedMore] = useState(false);
-  const [tab, setTab] = useState<TabKey>("prizes");
+  const [tab, setTab] = useState<string>("info");
   const [openedLucky, setOpenedLucky] = useState(false);
   const [openedListLucky, setOpenedListLucky] = useState(false);
-  const [confirmedModal, setConfirmedModal] = useState(false);
 
   const openPDF = () => {
     openDocument({
@@ -275,123 +263,77 @@ const ProgramDetailScreen = () => {
               <div className="h-full w-full bg-neutral-100" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-            {/* <div className="absolute left-3 top-7">
+            <div className="absolute left-3 bottom-7">
               <StatusPill status={program.status} />
-            </div> */}
-            <div className="absolute left-4 right-4 bottom-4">
-              <Text className="text-white text-xl font-semibold drop-shadow">
-                {program.title}
-              </Text>
-              {/* {!!program.code && (
-                <div className="mt-1 text-white/90 text-sm">
-                  Mã: {program.code}
-                </div>
-              )} */}
             </div>
           </div>
-
-          {isLoadingProgramDetail ? (
-            <div className="flex justify-center items-center">
-              <Spinner />
-            </div>
-          ) : (
-            <div className="p-4 sm:p-5">
-              <div className="flex justify-between items-center">
-                {/* Ngày bắt đầu & kết thúc */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 text-xs text-neutral-700">
-                  <div className="flex items-center gap-1">
-                    <CalendarDays className="h-4 w-4 text-emerald-600" />
-                    <span>
-                      Ngày diễn ra sự kiện:&nbsp;
-                      <strong>
-                        {dayjs(program.time_start).format("DD/MM/YYYY")}
-                      </strong>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1 mt-1 sm:mt-0">
-                    <CalendarOff className="h-4 w-4 text-rose-600" />
-                    <span>
-                      Ngày kết thúc chọn số:&nbsp;
-                      <strong>
-                        {dayjs(program.time_end).format("DD/MM/YYYY")}
-                      </strong>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Nút xem chi tiết PDF */}
+          <SegmentedTabs
+            value={tab}
+            onChange={setTab}
+            tabs={[
+              { key: "info", label: "Thông tin" },
+              { key: "selected", label: "Số đã chọn" },
+              { key: "result", label: "Kết quả" },
+            ]}
+          />
+          {tab === "info" &&
+            (isLoadingProgramDetail ? (
+              <div className="flex justify-center items-center">
+                <Spinner />
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 relative">
                 <button
                   onClick={openPDF}
-                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm"
+                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-5 right-5"
                 >
                   <FileText className="w-4 h-4 text-neutral-700" />
                 </button>
+                {!!program.description && (
+                  <div>
+                    <p
+                      className={`mt-4 text-[15px] leading-6 text-neutral-900 ${
+                        openedMore ? "line-clamp-none" : "line-clamp-6"
+                      }`}
+                      dangerouslySetInnerHTML={{
+                        __html: program.description || "",
+                      }}
+                    ></p>
+                    {!openedMore ? (
+                      <div
+                        onClick={() => setOpenedMore(true)}
+                        className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
+                      >
+                        <p className="text-sm">Xem thêm</p>
+                        <ChevronDown size={14} />
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => setOpenedMore(false)}
+                        className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
+                      >
+                        <p className="text-sm">Rút gọn</p>
+                        <ChevronUp size={14} />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!!program.rules?.length && (
+                  <ul className="mt-3 space-y-2 text-[15px] text-neutral-900">
+                    {program.rules.map((r, i) => (
+                      <li key={i} className="flex gap-3">
+                        <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-neutral-700" />
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-
-              {!!program.description && (
-                <div>
-                  <p
-                    className={`mt-4 text-[15px] leading-6 text-neutral-900 ${
-                      openedMore ? "line-clamp-none" : "line-clamp-6"
-                    }`}
-                    dangerouslySetInnerHTML={{
-                      __html: program.description || "",
-                    }}
-                  ></p>
-                  {!openedMore ? (
-                    <div
-                      onClick={() => setOpenedMore(true)}
-                      className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
-                    >
-                      <p className="text-sm">Xem thêm</p>
-                      <ChevronDown size={14} />
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => setOpenedMore(false)}
-                      className="flex flex-col justify-center items-center opacity-40 mt-2 pointer-events-auto"
-                    >
-                      <p className="text-sm">Rút gọn</p>
-                      <ChevronUp size={14} />
-                    </div>
-                  )}
-                </div>
-              )}
-              {!!program.rules?.length && (
-                <ul className="mt-3 space-y-2 text-[15px] text-neutral-900">
-                  {program.rules.map((r, i) => (
-                    <li key={i} className="flex gap-3">
-                      <span className="mt-[7px] h-1.5 w-1.5 rounded-full bg-neutral-700" />
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+            ))}
         </div>
       </Box>
 
       <Box className="px-4 pt-5">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => {
-                setTab(t.key);
-              }}
-              className={`h-10 rounded-full px-5 text-sm font-medium transition whitespace-nowrap ${
-                tab === t.key
-                  ? "bg-[#009345] text-white"
-                  : "bg-white/80 backdrop-blur border border-neutral-200 text-neutral-700 hover:bg-white"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
         {tab === "prizes" &&
           (isLoadingListGift ? (
             <div className="flex justify-center items-center py-4">
@@ -408,23 +350,18 @@ const ProgramDetailScreen = () => {
               <Spinner />
             </div>
           ) : (
-            <div className="mt-5">
-              <SelectedNumberList
-                numbers={(results || []).map((item) => ({
-                  isWin: item?.award_name ? true : false,
-                  number: +item.number,
-                }))}
-                pageSize={30}
-              />
-            </div>
+            <LuckyNumbersSection
+              programDetail={programDetail}
+              results={results}
+            />
           ))}
-        {tab === "results" &&
+        {tab === "result" &&
           (isLoadingListResult ? (
             <div className="flex justify-center items-center">
               <Spinner />
             </div>
           ) : (
-            <ResultsGrid items={results as TResultLuckyNumberItem[]} />
+            <ResultsGrid items={results} />
           ))}
       </Box>
 
@@ -437,31 +374,23 @@ const ProgramDetailScreen = () => {
               {programDetail?.number_get}/{programDetail?.number_limit}
             </Text>
           </div>
+
           <Button
             disabled={
               program.status !== "open" ||
               programDetail?.number_get === programDetail?.number_limit
             }
-            onClick={onRandomSingle}
-            loading={isLoadingRequestLuckyNumber}
-            className="h-12 flex-1 rounded-xl !border !border-neutral-600 font-semibold text-neutral-900 bg-white hover:bg-neutral-50"
-          >
-            Chọn 01 số
-          </Button>
-          <Button
-            disabled={
-              program.status !== "open" ||
-              programDetail?.number_get === programDetail?.number_limit
+            loading={
+              isLoadingRequestAllLuckyNumber || isLoadingRequestLuckyNumber
             }
-            loading={isLoadingRequestAllLuckyNumber}
-            onClick={() => setConfirmedModal(true)}
+            onClick={() => setOpenConfirm(true)}
             className={`h-12 flex-1 rounded-xl bg-[#E2672E] hover:bg-[#d56632] text-white font-semibold ${
               (program.status !== "open" ||
                 programDetail?.number_get === programDetail?.number_limit) &&
               "!bg-gray-500"
             }`}
           >
-            Chọn tất cả
+            Tham gia chọn số
           </Button>
         </div>
       </Box>
@@ -484,6 +413,7 @@ const ProgramDetailScreen = () => {
         }}
       />
       <ListLuckyResultModal
+        isLoading={isLoadingListResult}
         openedLucky={openedListLucky}
         onClose={() => setOpenedListLucky(false)}
         queue={
@@ -498,16 +428,7 @@ const ProgramDetailScreen = () => {
           })) || []
         }
       />
-      <LuckConfirmModal
-        opened={confirmedModal}
-        onConfirm={() => {
-          setConfirmedModal(false);
-          onRandomAll();
-        }}
-        onClose={() => {
-          setConfirmedModal(false);
-        }}
-      />
+
       <Modal
         visible={messageError !== ""}
         onClose={() => setMessageError("")}
@@ -527,6 +448,19 @@ const ProgramDetailScreen = () => {
           </Button>
         </Stack>
       </Modal>
+      <LuckyOptionModal
+        opened={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        onConfirm={(type) => {
+          setOpenConfirm(false);
+          if (type === "single") {
+            onRandomSingle();
+          } else {
+            onRandomAll();
+            setOpenedListLucky(true);
+          }
+        }}
+      />
     </Page>
   );
 };

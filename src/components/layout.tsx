@@ -13,30 +13,51 @@ import {
   Route,
   SnackbarProvider,
   ZMPRouter,
+  useLocation,
 } from "zmp-ui";
-import { AppProps } from "zmp-ui/app";
+import type { AppProps } from "zmp-ui/app";
+import BottomTabBar from "./bottom-tab-bar";
 
-const Layout = () => {
+function Shell() {
+  const { pathname } = useLocation();
+  const hideTabs =
+    pathname === "/" || pathname === "/otp" || pathname.startsWith("/program/");
+
+  return (
+    <>
+      <AnimationRoutes>
+        <Route path="/" element={<SplashScreen />} />
+        <Route path="/home" element={<HomeScreen />} />
+        <Route path="/program/:id" element={<ProgramDetailScreen />} />
+        <Route path="/history" element={<HistoryScreen />} />
+        <Route path="/otp" element={<OtpScreen />} />
+      </AnimationRoutes>
+
+      {!hideTabs && <BottomTabBar />}
+      {/* add bottom padding so content isn’t hidden behind the tab bar */}
+      {!hideTabs && (
+        <div
+          style={{
+            height: "56px",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+export default function Layout() {
   return (
     <Provider store={store}>
       <App theme={getSystemInfo().zaloTheme as AppProps["theme"]}>
         <SnackbarProvider>
           <ZMPRouter>
-            <AnimationRoutes>
-              <Route path="/" element={<SplashScreen />}></Route>
-              <Route path="/home" element={<HomeScreen />}></Route>
-              <Route
-                path="/program/:id"
-                element={<ProgramDetailScreen />}
-              ></Route>
-              <Route path="/history" element={<HistoryScreen />}></Route>
-              <Route path="/otp" element={<OtpScreen />} />
-            </AnimationRoutes>
+            <Shell />
           </ZMPRouter>
         </SnackbarProvider>
         <ToastContainer position="bottom-center" stacked={false} />
       </App>
     </Provider>
   );
-};
-export default Layout;
+}
