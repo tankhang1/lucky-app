@@ -64,8 +64,13 @@ const HomeScreen = () => {
   );
 
   const others = useMemo(
-    () => [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
-    [listActiveCampaigns, listExpiredCampaigns]
+    () =>
+      tab === "running"
+        ? listActiveCampaigns || []
+        : tab === "ended"
+        ? listExpiredCampaigns || []
+        : [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
+    [tab, listActiveCampaigns, listExpiredCampaigns]
   );
 
   const onProgramDetail = (id: string) => navigate(`/program/${id}`);
@@ -76,13 +81,20 @@ const HomeScreen = () => {
       <Box className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-neutral-200">
         <div className="px-5 py-4 flex items-center gap-3 pt-14">
           <img
-            src={Logo}
+            src={
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGAHsZHDHoPw_98PpYAG1JkQwieYYUKXdFog&s"
+            }
             alt="Mappacific"
-            className="h-7 w-auto object-contain drop-shadow-sm"
+            className="h-9 w-auto object-contain rounded-full drop-shadow-sm"
           />
-          <Text className="text-base font-bold tracking-wide">
-            CHỌN SỐ MAY MẮN
-          </Text>
+          <div>
+            <Text className="text-base font-bold tracking-wide">
+              Nguyễn Văn A
+            </Text>
+            <Text className="text-xs tracking-wide text-gray-400">
+              +84352231222
+            </Text>
+          </div>
         </div>
       </Box>
 

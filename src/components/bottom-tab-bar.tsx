@@ -1,8 +1,8 @@
-import { Dices, HistoryIcon, NotepadText, User } from "lucide-react";
+import { Dices, NotepadText, User } from "lucide-react";
 import { ReactNode } from "react";
 import { Box } from "zmp-ui";
 import { useLocation, useNavigate } from "zmp-ui";
-
+import Logo from "@/assets/logo.png";
 type TabItem = {
   key: string;
   label?: string;
@@ -14,7 +14,12 @@ type TabItem = {
 
 const TABS: TabItem[] = [
   { key: "home", label: "Trang chủ", icon: <NotepadText />, path: "/home" },
-  { key: "random", icon: <Dices />, path: "/random", center: true },
+  {
+    key: "logo",
+    icon: <img src={Logo} className="w-14 object-contain" />,
+    path: "",
+    center: true,
+  },
   { key: "profile", label: "Cá nhân", icon: <User />, path: "/profile" },
 ];
 
@@ -35,9 +40,9 @@ export default function BottomTabBar() {
             it.center ? (
               <div key={it.key} className="flex items-start justify-center">
                 <button
-                  onClick={() => nav(it.path)}
+                  onClick={() => {}}
                   aria-label="Random"
-                  className="relative mt-[-26px] inline-flex items-center justify-center rounded-full h-14 w-14 bg-[#009345] text-white shadow-[0_10px_25px_rgba(0,147,69,0.45)] ring-4 ring-[#009345]/15 active:scale-95 transition-transform"
+                  className="relative mt-[-26px] inline-flex items-center justify-center rounded-full h-14 w-14 bg-white text-white shadow-[0_10px_25px_rgba(0,147,69,0.45)] ring-4 ring-[#009345]/15 active:scale-95 transition-transform"
                 >
                   {it.icon}
                   <span className="absolute -z-10 h-16 w-16 rounded-full bg-[#009345]/20 blur-xl" />

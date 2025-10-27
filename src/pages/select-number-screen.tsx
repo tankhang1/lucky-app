@@ -19,6 +19,7 @@ import { RootState } from "@/redux/store";
 import LuckyResultModal from "@/components/lucky-result-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
+import LuckConfirmModal from "@/components/lucky-confirm-modal";
 
 type TNum = { isWin: boolean; number: number };
 
@@ -51,7 +52,8 @@ const SelectNumberScreen = () => {
   const nav = useNavigate();
   const { p, userId } = useSelector((state: RootState) => state.app);
 
-  const [openedConfirmModal, setOpenedConfirmModal] = useState(false);
+  const [openConfirmRequestAllModal, setOpenConfirmRequestAllModal] =
+    useState(false);
 
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
     useGetCampaignDetailQuery(
@@ -84,7 +86,7 @@ const SelectNumberScreen = () => {
   const [openedLucky, setOpenedLucky] = useState(false);
   const [openedListLucky, setOpenedListLucky] = useState(false);
   const [messageError, setMessageError] = useState("");
-
+  const [openedConfirmModal, setOpenedConfirmModal] = useState(false);
   const [requestLuckNumber, { isLoading: loadingOne }] =
     useRequestLuckNumberMutation();
   const [requestAllLuckNumber, { isLoading: loadingAll }] =
@@ -109,6 +111,7 @@ const SelectNumberScreen = () => {
   };
 
   const onRandomAll = async () => {
+    setOpenConfirmRequestAllModal(false);
     await requestAllLuckNumber({
       phone: p,
       zalo_user_id: userId,
@@ -194,7 +197,11 @@ const SelectNumberScreen = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 md:grid-cols-7">
+            <div
+              className={`transition-all grid grid-cols-5 gap-2 sm:grid-cols-6 md:grid-cols-7 ${
+                openedLucky ? "opacity-0" : ""
+              }`}
+            >
               {numbers.map((n, i) => (
                 <Circle key={`${n.number}-${i}`} n={n} />
               ))}
@@ -224,7 +231,7 @@ const SelectNumberScreen = () => {
               {loadingOne ? "Đang chọn…" : "Chọn\n01 số"}
             </button>
             <button
-              onClick={onRandomAll}
+              onClick={() => setOpenConfirmRequestAllModal(true)}
               disabled={busy || get >= limit}
               className="rounded-full w-20 h-20 border border-[#009345] bg-white px-3 py-3 text-sm font-semibold text-[#009345] hover:bg-emerald-50 disabled:opacity-50"
             >
@@ -310,6 +317,11 @@ const SelectNumberScreen = () => {
           </Button>
         </Stack>
       </Modal>
+      <LuckConfirmModal
+        opened={openConfirmRequestAllModal}
+        onClose={() => setOpenConfirmRequestAllModal(false)}
+        onConfirm={onRandomAll}
+      />
     </Box>
   );
 };

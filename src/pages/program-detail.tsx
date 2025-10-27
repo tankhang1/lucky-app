@@ -153,11 +153,11 @@ const ProgramDetailScreen = () => {
     useRequestLuckNumberMutation();
   const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
     useRequestLuckNumberMutation();
-  const [resultLuckyNumber, setResultLuckyNumber] = useState<TLuckResultItem>();
-  const [listResultLuckyNumber, setListResultLuckyNumber] = useState<
-    TLuckResultItem[]
-  >([]);
-  const [openConfirm, setOpenConfirm] = useState(false);
+  // const [resultLuckyNumber, setResultLuckyNumber] = useState<TLuckResultItem>();
+  // const [listResultLuckyNumber, setListResultLuckyNumber] = useState<
+  //   TLuckResultItem[]
+  // >([]);
+  // const [openConfirm, setOpenConfirm] = useState(false);
   const [messageError, setMessageError] = useState("");
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
@@ -192,8 +192,8 @@ const ProgramDetailScreen = () => {
   const { program, participants, results } = data;
   const [openedMore, setOpenedMore] = useState(false);
   const [tab, setTab] = useState<string>("info");
-  const [openedLucky, setOpenedLucky] = useState(false);
-  const [openedListLucky, setOpenedListLucky] = useState(false);
+  // const [openedLucky, setOpenedLucky] = useState(false);
+  // const [openedListLucky, setOpenedListLucky] = useState(false);
 
   const openPDF = () => {
     openDocument({
@@ -202,40 +202,40 @@ const ProgramDetailScreen = () => {
       download: true,
     });
   };
-  const onRandomSingle = async () => {
-    await requestLuckNumber({
-      phone: p,
-      zalo_user_id: userId,
-      turn_all: 0,
-      campaign_code: id || "",
-    })
-      .unwrap()
-      .then((value) => {
-        setResultLuckyNumber(value.data?.[0]);
-        refetchListResult();
-        setOpenedLucky(true);
-      })
-      .catch((error) => {
-        setMessageError(error.data.message);
-      });
-  };
-  const onRandomAll = async () => {
-    await requestAllLuckNumber({
-      phone: p,
-      zalo_user_id: userId,
-      turn_all: 1,
-      campaign_code: id || "",
-    })
-      .unwrap()
-      .then((value) => {
-        setListResultLuckyNumber(value.data);
-        refetchListResult();
-        setOpenedListLucky(true);
-      })
-      .catch((error) => {
-        setMessageError(error.data.message);
-      });
-  };
+  // const onRandomSingle = async () => {
+  //   await requestLuckNumber({
+  //     phone: p,
+  //     zalo_user_id: userId,
+  //     turn_all: 0,
+  //     campaign_code: id || "",
+  //   })
+  //     .unwrap()
+  //     .then((value) => {
+  //       setResultLuckyNumber(value.data?.[0]);
+  //       refetchListResult();
+  //       setOpenedLucky(true);
+  //     })
+  //     .catch((error) => {
+  //       setMessageError(error.data.message);
+  //     });
+  // };
+  // const onRandomAll = async () => {
+  //   await requestAllLuckNumber({
+  //     phone: p,
+  //     zalo_user_id: userId,
+  //     turn_all: 1,
+  //     campaign_code: id || "",
+  //   })
+  //     .unwrap()
+  //     .then((value) => {
+  //       setListResultLuckyNumber(value.data);
+  //       refetchListResult();
+  //       setOpenedListLucky(true);
+  //     })
+  //     .catch((error) => {
+  //       setMessageError(error.data.message);
+  //     });
+  // };
   useEffect(() => {
     if (!isLoadingProgramDetail && !programDetail?.code) {
       navigate("/home");
@@ -395,7 +395,7 @@ const ProgramDetailScreen = () => {
         </div>
       </Box>
 
-      <LuckyResultModal
+      {/* <LuckyResultModal
         openedLucky={openedLucky}
         onClose={() => setOpenedLucky(false)}
         onContinue={onRandomSingle}
@@ -427,7 +427,7 @@ const ProgramDetailScreen = () => {
             time: new Date().toDateString(),
           })) || []
         }
-      />
+      /> */}
 
       <Modal
         visible={messageError !== ""}
@@ -448,7 +448,7 @@ const ProgramDetailScreen = () => {
           </Button>
         </Stack>
       </Modal>
-      <LuckyOptionModal
+      {/* <LuckyOptionModal
         opened={openConfirm}
         onClose={() => setOpenConfirm(false)}
         onConfirm={(type) => {
@@ -460,7 +460,7 @@ const ProgramDetailScreen = () => {
             setOpenedListLucky(true);
           }
         }}
-      />
+      /> */}
     </Page>
   );
 };
