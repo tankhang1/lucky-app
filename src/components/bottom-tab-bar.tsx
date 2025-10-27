@@ -15,7 +15,7 @@ type TabItem = {
 const TABS: TabItem[] = [
   { key: "home", label: "Trang chủ", icon: <NotepadText />, path: "/home" },
   { key: "random", icon: <Dices />, path: "/random", center: true },
-  { key: "profile", label: "Cá nhân", icon: <User />, path: "/user" },
+  { key: "profile", label: "Cá nhân", icon: <User />, path: "/profile" },
 ];
 
 export default function BottomTabBar() {

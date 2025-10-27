@@ -90,7 +90,7 @@ export default function DigitReel({
   return (
     <div
       onClick={onClick}
-      className="relative overflow-hidden rounded-full border bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-900 dark:to-neutral-800 cursor-pointer"
+      className="relative overflow-hidden rounded-lg border bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-900 dark:to-neutral-800 cursor-pointer"
       style={{ height: h, width: h }}
     >
       <motion.div style={{ y, willChange: "transform" }}>

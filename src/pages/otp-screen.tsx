@@ -1,6 +1,5 @@
 import { useConfirmOTPMutation } from "@/redux/api/auth/auth.api";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
 import {
   Page,
   Box,

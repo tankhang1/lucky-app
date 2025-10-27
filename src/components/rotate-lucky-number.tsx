@@ -69,7 +69,7 @@ const RotateLuckyNumber = ({
             key={i}
             active={isActive}
             stopNumber={stopNumbers[i]}
-            size={50}
+            size={80}
             speed={700 + i * 80}
             extraTurns={2}
             onClick={() => toggleOne(i)}

@@ -383,7 +383,7 @@ const ProgramDetailScreen = () => {
             loading={
               isLoadingRequestAllLuckyNumber || isLoadingRequestLuckyNumber
             }
-            onClick={() => setOpenConfirm(true)}
+            onClick={() => navigate(`/select-number/${id}`)}
             className={`h-12 flex-1 rounded-xl bg-[#E2672E] hover:bg-[#d56632] text-white font-semibold ${
               (program.status !== "open" ||
                 programDetail?.number_get === programDetail?.number_limit) &&

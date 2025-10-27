@@ -17,6 +17,8 @@ import {
 } from "zmp-ui";
 import type { AppProps } from "zmp-ui/app";
 import BottomTabBar from "./bottom-tab-bar";
+import SelectNumberScreen from "@/pages/select-number-screen";
+import ProfileScreen from "@/pages/profile-screen";
 
 function Shell() {
   const { pathname } = useLocation();
@@ -31,6 +33,8 @@ function Shell() {
         <Route path="/program/:id" element={<ProgramDetailScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/otp" element={<OtpScreen />} />
+        <Route path="/select-number/:id" element={<SelectNumberScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
       </AnimationRoutes>
 
       {!hideTabs && <BottomTabBar />}

@@ -32,10 +32,10 @@ export default function LuckyNumbersSection({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 ring-1 ring-emerald-200">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[8px] font-medium text-emerald-600 ring-1 ring-emerald-200">
               {pct}% hoàn thành
             </span>
-            <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+            <span className="rounded-full bg-amber-50 px-3 py-1 text-[8px] font-medium text-amber-700 ring-1 ring-amber-200">
               Còn {remain}
             </span>
           </div>
@@ -59,7 +59,7 @@ export default function LuckyNumbersSection({
       <div className="rounded-2xl border border-neutral-200 bg-white/90 p-4 shadow-sm backdrop-blur">
         <div className="mb-3 flex items-center justify-between">
           <p className="font-medium">Danh sách số đã chọn</p>
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-3 text-[10px]">
             <span className="inline-flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> Trúng
               thưởng
