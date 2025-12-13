@@ -94,14 +94,14 @@ export function PrizesList({
       {maxPage > 1 && (
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page <= 1}
             onClick={() => setPage(1)}
           >
             Đầu
           </button>
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
@@ -114,12 +114,12 @@ export function PrizesList({
             return (
               <span key={n} className="inline-flex">
                 {dots && (
-                  <span className="px-1 text-xs text-neutral-500">…</span>
+                  <span className="px-1 text-sm text-neutral-500">…</span>
                 )}
                 <button
                   onClick={() => setPage(n)}
                   className={[
-                    "rounded-full px-3 py-1 text-xs font-medium",
+                    "rounded-full px-3 py-1 text-sm font-medium",
                     n === page
                       ? "bg-[#009345] text-white"
                       : "border text-neutral-700 hover:bg-neutral-50",
@@ -132,21 +132,21 @@ export function PrizesList({
           })}
 
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page >= maxPage}
             onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
           >
             Sau
           </button>
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page >= maxPage}
             onClick={() => setPage(maxPage)}
           >
             Cuối
           </button>
 
-          <span className="ml-2 text-xs text-neutral-500">
+          <span className="ml-2 text-sm text-neutral-500">
             Trang {page}/{maxPage} • {total} giải
           </span>
         </div>

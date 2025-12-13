@@ -32,9 +32,47 @@ export default function BottomTabBar() {
     <Box className="fixed bottom-0 inset-x-0 z-30">
       <Box className="pointer-events-none absolute -top-6 inset-x-6 h-12 rounded-full bg-gradient-to-t from-black/5 to-transparent blur" />
       <Box
-        className="mx-auto mb-0 max-w-screen-sm rounded-t-2xl border border-neutral-200/70 bg-white/80 backdrop-blur-xl shadow-[0_-6px_24px_rgba(0,0,0,0.06)]"
+        className="mx-auto mb-0 max-w-screen-sm rounded-t-2xl"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
+        <svg
+          className="absolute inset-x-0 bottom-0 h-[72px] w-full rotate-180"
+          viewBox="0 0 100 72"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Thanh trắng có 2 bên thẳng, giữa lõm mượt và sâu hơn */}
+          <path
+            d="
+      M0,0 
+      H100 
+      V58 
+      L68,58 
+      C62,58 57,22 50,22 
+      C43,22 38,58 32,58 
+      L0,58 
+      Z
+    "
+            fill="#ffffff"
+          />
+          {/* viền nhẹ */}
+          <path
+            d="
+      M0,0 
+      H100 
+      V58 
+      L68,58 
+      C62,58 57,22 50,22 
+      C43,22 38,58 32,58 
+      L0,58 
+      Z
+    "
+            fill="none"
+            stroke="rgba(0,0,0,0.08)"
+            strokeWidth="0.6"
+          />
+        </svg>
+
         <Box className="grid grid-cols-3 h-16 px-2">
           {TABS.map((it) =>
             it.center ? (

@@ -6,6 +6,8 @@ export type TCampaginItem = {
   joined: number; // 0: chua tham gia, 1: da tham gia
   name: string;
   time: string;
+  number_get: number;
+  number_limit: number;
 };
 export type TGetListCampaignRes = TCampaginItem[];
 

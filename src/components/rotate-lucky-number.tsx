@@ -29,7 +29,7 @@ const RotateLuckyNumber = ({
     });
   };
   const stopAll = () => {
-    setActive(Array(5).fill(false));
+    setActive(Array(3).fill(false));
   };
   useEffect(() => {
     if (openedLucky) {
@@ -39,7 +39,7 @@ const RotateLuckyNumber = ({
         setTimeout(() => {
           stopAll();
           onComplete();
-        }, 5000);
+        }, 3000);
       }, 100);
     } else {
       setPlay(false);
@@ -48,20 +48,20 @@ const RotateLuckyNumber = ({
 
   useEffect(() => {
     if (play) {
-      setActive(Array(5).fill(true));
+      setActive(Array(3).fill(true));
     }
   }, [play]);
   useEffect(() => {
     setStopNumbers(
       targetNumber
         .toString()
-        .padStart(5, "0")
+        .padStart(3, "0")
         .split("")
         .map((item) => +item)
     );
   }, [targetNumber]);
   return (
-    <div className="flex gap-1 items-center justify-center">
+    <div className="flex gap-1 items-center justify-center mt-3">
       {play &&
         stopNumbers?.length > 0 &&
         active.map((isActive, i) => (
@@ -69,7 +69,7 @@ const RotateLuckyNumber = ({
             key={i}
             active={isActive}
             stopNumber={stopNumbers[i]}
-            size={80}
+            size={120}
             speed={700 + i * 80}
             extraTurns={2}
             onClick={() => toggleOne(i)}

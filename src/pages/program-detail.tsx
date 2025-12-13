@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { openDocument } from "zmp-sdk";
+// import { openDocument } from "zmp-sdk";
 import {
   Page,
   Box,
@@ -196,11 +196,11 @@ const ProgramDetailScreen = () => {
   // const [openedListLucky, setOpenedListLucky] = useState(false);
 
   const openPDF = () => {
-    openDocument({
-      url: program?.pdf,
-      title: "Thông tin chi tiết",
-      download: true,
-    });
+    // openDocument({
+    //   url: program?.pdf,
+    //   title: "Thông tin chi tiết",
+    //   download: true,
+    // });
   };
   // const onRandomSingle = async () => {
   //   await requestLuckNumber({
@@ -242,7 +242,7 @@ const ProgramDetailScreen = () => {
     }
   }, [isLoadingProgramDetail, programDetail]);
   return (
-    <Page className="relative min-h-screen bg-gradient-to-b from-amber-50 via-neutral-50 to-emerald-50 text-neutral-900">
+    <Page className="relative min-h-screen bg-gray-50 text-neutral-900">
       <Header
         title={program.title}
         backgroundColor="bg-white/70 backdrop-blur-md"
@@ -272,7 +272,7 @@ const ProgramDetailScreen = () => {
             onChange={setTab}
             tabs={[
               { key: "info", label: "Thông tin" },
-              { key: "selected", label: "Số đã chọn" },
+              { key: "selected", label: "Chọn số may mắn" },
               { key: "result", label: "Kết quả" },
             ]}
           />
@@ -293,7 +293,7 @@ const ProgramDetailScreen = () => {
                   <div>
                     <p
                       className={`mt-4 text-[15px] leading-6 text-neutral-900 ${
-                        openedMore ? "line-clamp-none" : "line-clamp-6"
+                        openedMore ? "line-clamp-none" : "line-clamp-20"
                       }`}
                       dangerouslySetInnerHTML={{
                         __html: program.description || "",

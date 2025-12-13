@@ -7,7 +7,7 @@ import { RootState } from "@/redux/store";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, Text, useNavigate, Spinner } from "zmp-ui";
-import Logo from "@/assets/logo.png";
+import Leaf from "@/assets/leaf.png";
 import CampaignCard from "@/components/campaign-card";
 import SegmentedTabs from "@/components/segmented-tabs";
 export type Program = {
@@ -19,6 +19,7 @@ export type Program = {
   joined: number;
   participants: number;
   thumbnail?: string;
+  remaining: number;
 };
 
 export const STATUS_LABEL: Record<Program["status"], string> = {
@@ -39,6 +40,7 @@ const dtoCampaign = (value: TCampaginItem): Program => {
     joined: value.joined,
     title: value.name,
     thumbnail: value.banner,
+    remaining: Math.max(value.number_limit - value.number_get, 0),
   };
 };
 
@@ -76,25 +78,31 @@ const HomeScreen = () => {
   const onProgramDetail = (id: string) => navigate(`/program/${id}`);
 
   return (
-    <Box className="flex flex-col h-screen bg-gradient-to-b from-white to-neutral-50 text-neutral-900 overflow-hidden">
+    <Box className="flex flex-col h-screen bg-neutral-50 text-neutral-900 overflow-hidden">
       {/* Sticky Header */}
-      <Box className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-neutral-200">
-        <div className="px-5 py-4 flex items-center gap-3 pt-14">
+      <Box className="sticky top-0 z-30 bg-[#009345]">
+        <div className="relative flex items-center gap-4 px-5 pb-3 pt-14">
           <img
-            src={
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGAHsZHDHoPw_98PpYAG1JkQwieYYUKXdFog&s"
-            }
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGAHsZHDHoPw_98PpYAG1JkQwieYYUKXdFog&s"
             alt="Mappacific"
-            className="h-9 w-auto object-contain rounded-full drop-shadow-sm"
+            className="relative h-11 w-11 rounded-full object-cover ring-2 ring-white/80"
           />
+
           <div>
-            <Text className="text-base font-bold tracking-wide">
+            <Text className="text-white font-semibold text-lg tracking-wide leading-snug">
               Nguyễn Văn A
             </Text>
-            <Text className="text-xs tracking-wide text-gray-400">
-              +84352231222
+            <Text className="text-white/70 text-xs tracking-wide">
+              +84&nbsp;352&nbsp;231&nbsp;222
             </Text>
           </div>
+
+          {/* Decorative leaf */}
+          <img
+            src={Leaf}
+            alt="Mappacific leaf"
+            className="absolute right-0 bottom-0 h-20"
+          />
         </div>
       </Box>
 

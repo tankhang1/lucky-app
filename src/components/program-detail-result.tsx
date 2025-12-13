@@ -27,84 +27,94 @@ const StatusPill = ({ win }: { win: boolean }) => (
   </span>
 );
 
+const isWin = (r: TResultLuckyNumberItem) =>
+  Boolean(r.gift_name || r.gift_image || r.award_name);
 const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
-  const isWin = !!(r.gift_name || r.gift_image || r.award_name);
+  const win = isWin(r);
   const title = r.award_name || r.gift_name || "Giải thưởng";
   const img = r.gift_image;
 
-  return (
-    <li
-      className={[
-        "group relative overflow-hidden rounded-2xl p-4 ring-1 transition",
-        isWin
-          ? "bg-white/90 ring-black/5 shadow-sm hover:shadow-md"
-          : "bg-neutral-50/80 ring-neutral-200",
-      ].join(" ")}
-      aria-label={`Số ${r.number} • ${isWin ? "Trúng thưởng" : "Đang chờ"}`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-            <Clock4 className="h-3.5 w-3.5" />
-            {formatDT(r.time)}
-          </div>
-          {!isWin && (
+  if (!win) {
+    // Giữ nguyên layout cũ cho thẻ không trúng thưởng
+    return (
+      <li
+        className="group relative overflow-hidden rounded-2xl p-4 bg-neutral-50/80 ring-1 ring-neutral-200"
+        aria-label={`Số ${r.number} • Đang chờ`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+              <Clock4 className="h-3.5 w-3.5" />
+              {formatDT(r.time)}
+            </div>
             <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-neutral-900">
               <span className="inline-flex items-center gap-1">Số may mắn</span>
               <span className="rounded-md bg-neutral-900/5 px-2 py-0.5 text-neutral-900">
                 {r.number}
               </span>
             </div>
-          )}
+          </div>
+          <StatusPill win={false} />
         </div>
-        <StatusPill win={isWin} />
-      </div>
 
-      {isWin ? (
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
-            <div className="text-2xs uppercase tracking-wide text-neutral-500">
-              Giải thưởng
-            </div>
-            <div className="mt-0.5 line-clamp-2 font-semibold text-neutral-900">
-              {title}
-            </div>
-          </div>
-          <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
-            <div className="text-2xs uppercase tracking-wide text-neutral-500">
-              Số may mắn
-            </div>
-            <div className="mt-0.5 font-semibold text-neutral-900">
-              {r.number}
-            </div>
-          </div>
-          {img ? (
-            <div className="col-span-2 rounded-xl bg-white/70 ring-1 ring-black/5 p-3">
-              <div className="text-2xs uppercase tracking-wide text-neutral-500 mb-2">
-                {r.gift_name}
-              </div>
-              <div className="aspect-[16/9] w-full overflow-hidden rounded-lg ">
-                <img
-                  src={img}
-                  alt={title}
-                  className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-          ) : null}
-        </div>
-      ) : (
         <div className="mt-4 rounded-xl border border-dashed border-neutral-300 bg-white/60 p-4 text-center">
           <div className="text-sm text-neutral-600">Đang chờ kết quả</div>
         </div>
-      )}
+      </li>
+    );
+  }
 
-      <div className="pointer-events-none absolute -bottom-12 -right-12 h-32 w-32 rounded-full bg-emerald-400/10 blur-2xl" />
-    </li>
+  // Layout trúng thưởng = ticket horizontal style
+  return (
+    <div className="overflow-hidden p-[1px]">
+      <li className="bg-white ring-1 ring-amber-300/90 py-4 px-2 rounded-xl relative z-30">
+        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute top-[-8px] translate-x-[72px] bg-gray-50 z-50" />
+        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute bottom-[-8px] translate-x-[72px] bg-gray-50 z-50" />
+        <div className="flex items-center gap-3">
+          {/* Số may mắn */}
+          <div className="w-[80px] shrink-0 text-center">
+            <div className="text-[10px] leading-none text-neutral-500 mb-1">
+              Số may mắn
+            </div>
+            <div className="mx-auto h-12 w-12 flex items-center justify-center">
+              <span className="text-4xl font-extrabold text-neutral-900 leading-none">
+                {r.number}
+              </span>
+            </div>
+          </div>
+
+          {/* Giải thưởng */}
+          <div className="min-w-0 space-y-1 flex-1">
+            <div className="text-lg text-center font-bold text-neutral-900 leading-tight line-clamp-1">
+              {title}
+            </div>
+            <div className="text-base text-center text-neutral-700 leading-tight line-clamp-1">
+              {r.gift_name || "Quà tặng"}
+            </div>
+          </div>
+
+          {/* Hình quà */}
+          <div className="w-20 shrink-0">
+            <div className="h-12 w-20 overflow-hidden bg-white flex items-center justify-center">
+              {img ? (
+                <img
+                  src={img}
+                  alt={title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="text-[14px] font-bold text-white bg-[#5B8BD9] h-full w-full flex items-center justify-center">
+                  {(r.gift_name?.[0] || "H").toUpperCase()}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </li>
+    </div>
   );
 };
-
 function usePageNumbers(page: number, maxPage: number, span = 1) {
   const pages = new Set<number>([1, maxPage, page]);
   for (let i = 1; i <= span; i++) {
@@ -122,16 +132,37 @@ export function ResultsGrid({
   pageSize?: number;
 }) {
   const [page, setPage] = useState(1);
-  const total = items?.length ?? 0;
+
+  const sorted = useMemo(() => {
+    return [...(items || [])].sort((a, b) => {
+      const aw = isWin(a) ? 1 : 0;
+      const bw = isWin(b) ? 1 : 0;
+      if (bw !== aw) return bw - aw; // trúng lên trước
+      const at = new Date(a.time).getTime() || 0;
+      const bt = new Date(b.time).getTime() || 0;
+      if (bt !== at) return bt - at; // mới trước
+      return +b.number - +a.number; // số lớn trước (tùy ý)
+    });
+  }, [items]);
+
+  const total = sorted.length;
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
+  const arranged = useMemo(() => {
+    const w: TResultLuckyNumberItem[] = [];
+    const l: TResultLuckyNumberItem[] = [];
+    (items ?? []).forEach((it) => (isWin(it) ? w.push(it) : l.push(it)));
+    return [...w, ...l]; // winners (giữ thứ tự gốc) + losers (giữ thứ tự gốc)
+  }, [items]);
+
   const { slice, pageItems } = useMemo(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     return {
       slice: [start, end] as const,
-      pageItems: items?.slice(start, end) ?? [],
+      pageItems: arranged.slice(start, end),
     };
-  }, [items, page, pageSize]);
+  }, [arranged, page, pageSize]);
+
   const nums = usePageNumbers(page, maxPage, 1);
 
   if (!total) {
@@ -146,26 +177,27 @@ export function ResultsGrid({
   }
 
   return (
-    <div className="mt-3 space-y-6">
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="mt-3">
+      <p className="font-semibold text-black mb-2">Kết quả trúng thưởng</p>
+      <ul className="space-y-3">
         {pageItems.map((r, idx) => (
           <CardKQ key={`${r.number}-${r.time}-${slice[0] + idx}`} r={r} />
         ))}
       </ul>
 
       <nav
-        className="mx-auto flex max-w-full flex-wrap items-center justify-center gap-2"
+        className="mx-auto mt-4 flex max-w-full flex-wrap items-center justify-center gap-2"
         aria-label="Phân trang kết quả"
       >
         <button
-          className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+          className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
           disabled={page <= 1}
           onClick={() => setPage(1)}
         >
           Đầu
         </button>
         <button
-          className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+          className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
           disabled={page <= 1}
           onClick={() => setPage((p) => Math.max(1, p - 1))}
         >
@@ -178,12 +210,12 @@ export function ResultsGrid({
           return (
             <span key={n} className="inline-flex">
               {showDots && (
-                <span className="px-1 text-xs text-neutral-500">…</span>
+                <span className="px-1 text-sm text-neutral-500">…</span>
               )}
               <button
                 onClick={() => setPage(n)}
                 className={[
-                  "rounded-full px-3 py-1 text-xs font-medium",
+                  "rounded-full px-3 py-1 text-sm font-medium",
                   n === page
                     ? "bg-[#009345] text-white"
                     : "border text-neutral-700 hover:bg-neutral-50",
@@ -197,21 +229,21 @@ export function ResultsGrid({
         })}
 
         <button
-          className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+          className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
           disabled={page >= maxPage}
           onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
         >
           Sau
         </button>
         <button
-          className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+          className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
           disabled={page >= maxPage}
           onClick={() => setPage(maxPage)}
         >
           Cuối
         </button>
 
-        <span className="ml-2 text-xs text-neutral-500">
+        <span className="ml-2 text-sm text-neutral-500">
           Trang {page}/{maxPage} • {total} mục
         </span>
       </nav>

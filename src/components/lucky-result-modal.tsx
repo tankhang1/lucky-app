@@ -1,8 +1,8 @@
 // LuckyResultModal.tsx
-import React, { useEffect, useMemo, useState } from "react";
-import { Modal, Box, Text, Button, Icon, Avatar } from "zmp-ui";
+import { useEffect, useMemo, useState } from "react";
+import { Modal, Box, Text, Button, Icon } from "zmp-ui";
 import RotateLuckyNumber from "./rotate-lucky-number";
-import Gift from "../assets/gift.png";
+import Logo from "../assets/logo.png";
 import Confetti from "react-confetti-boom";
 type LuckyResult = {
   targetNumber: number;
@@ -56,8 +56,15 @@ export default function LuckyResultModal({
     >
       <Box>
         <Box className="mx-auto w-full max-w-md rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 overflow-hidden">
-          <Box className="absolute top-1 z-50 left-1/2 -translate-x-1/2 h-20 w-20 rounded-full bg-gradient-to-b from-yellow-300 to-amber-500 flex items-center justify-center shadow-lg">
-            <img src={Gift} alt="Gift" className="h-12 w-12" />
+          <Box className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+            <div className="relative h-20 w-20 rounded-full bg-white shadow-[0_6px_25px_rgba(0,0,0,0.1)] ring-2 ring-green-600 flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/80 to-white/60" />
+              <img
+                src={Logo}
+                alt="Logo"
+                className="relative w-20 object-contain drop-shadow-sm"
+              />
+            </div>
           </Box>
 
           <Box className="pt-14 px-5 pb-4 text-center">
@@ -73,8 +80,8 @@ export default function LuckyResultModal({
                 <div className="relative inline-block">
                   <div className="absolute -inset-6 rounded-full bg-amber-300/25 blur-3xl" />
                   <div className="px-8 py-4">
-                    <span className="font-mono text-7xl sm:text-8xl font-bold tracking-widest bg-gradient-to-b from-amber-600 via-amber-400 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg">
-                      {String(result.targetNumber).padStart(5, "0")}
+                    <span className="font-manrope text-9xl sm:text-8xl font-bold tracking-widest bg-gradient-to-b from-amber-600 via-amber-400 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg">
+                      {String(result.targetNumber)}
                     </span>
                   </div>
                 </div>
@@ -152,7 +159,7 @@ export default function LuckyResultModal({
               <Box className="mt-4 flex items-center justify-center gap-1 text-amber-600">
                 <Text className="text-xs font-medium">
                   {!revealed
-                    ? "🎡 Đang chọn số... Hãy cùng chờ xem vận may của bạn hôm nay!"
+                    ? "🎡 Đang chọn số..."
                     : result.prizeImage
                     ? "🎉 Xin chúc mừng! Bạn đã trúng thưởng thật tuyệt vời!"
                     : "✨ Số may mắn của bạn đã được bật mí hãy cùng chờ kết quả nhé!"}

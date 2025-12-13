@@ -1,3 +1,9 @@
+@import "@fontsource/manrope/scss";
+
+:root {
+  --font-manrope: "Manrope", sans-serif;
+}
+
 .page {
   padding: 16px 16px 96px 16px;
 }
@@ -19,4 +25,12 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+:root {
+  --font-manrope: "Manrope", sans-serif;
+}
+
+html, body {
+  font-family: var(--font-manrope);
 }

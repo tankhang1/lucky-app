@@ -2,7 +2,7 @@
   "app": {
     "title": "lucky-app",
     "textColor": {
-      "light": "black",
+      "light": "white",
       "dark": "white"
     },
     "statusBar": "transparent",

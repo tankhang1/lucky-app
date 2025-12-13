@@ -69,7 +69,7 @@ function usePageNumbers(page: number, maxPage: number, span = 1) {
 }
 
 const CardItem = ({ r }: { r: TGetListCampaignHistoryItem }) => {
-  const isWin = !!(r.gift_name || r.gift_image);
+  const isWin = Boolean(r.gift_name || r.gift_image || r.award_name);
   return (
     <li
       className={[
@@ -367,14 +367,14 @@ const HistoryLuckyResultPage = () => {
             {/* Pagination */}
             <div className="flex flex-wrap items-center justify-center gap-2">
               <button
-                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
                 disabled={page <= 1}
                 onClick={() => setPage(1)}
               >
                 Đầu
               </button>
               <button
-                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
@@ -387,7 +387,7 @@ const HistoryLuckyResultPage = () => {
                 return (
                   <span key={n} className="inline-flex">
                     {showDots && (
-                      <span className="px-1 text-xs text-neutral-500">…</span>
+                      <span className="px-1 text-sm text-neutral-500">…</span>
                     )}
                     <button
                       onClick={() => setPage(n)}
@@ -405,21 +405,21 @@ const HistoryLuckyResultPage = () => {
               })}
 
               <button
-                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
                 disabled={page >= maxPage}
                 onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
               >
                 Sau
               </button>
               <button
-                className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
                 disabled={page >= maxPage}
                 onClick={() => setPage(maxPage)}
               >
                 Cuối
               </button>
 
-              <span className="ml-2 text-xs text-neutral-500">
+              <span className="ml-2 text-sm text-neutral-500">
                 Trang {page}/{maxPage} • {total} mục
               </span>
             </div>

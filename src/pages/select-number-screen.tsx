@@ -20,6 +20,7 @@ import LuckyResultModal from "@/components/lucky-result-modal";
 import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
+import { Gift } from "lucide-react";
 
 type TNum = { isWin: boolean; number: number };
 
@@ -36,8 +37,8 @@ const Circle = ({ n }: { n: TNum }) => (
   >
     {n.number === -1 ? "?" : n.number}
     {n.isWin && (
-      <span className="absolute -top-1 -right-1 rounded-full bg-amber-500 text-white text-[10px] font-bold px-1.5 leading-none shadow">
-        WIN
+      <span className="absolute -top-1 -right-1 rounded-full bg-amber-500 p-1.5 shadow">
+        <Gift size={12} />
       </span>
     )}
   </div>
@@ -136,7 +137,7 @@ const SelectNumberScreen = () => {
   const numbers = useMemo<TNum[]>(
     () => [
       ...(listResult ?? []).map((item) => ({
-        isWin: !!item?.award_name,
+        isWin: Boolean(item.gift_name || item.gift_image || item.award_name),
         number: Number(item.number),
       })),
       ...Array.from({ length: Math.max(0, limit - get) }).map(() => ({
@@ -217,11 +218,11 @@ const SelectNumberScreen = () => {
             style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
           >
             <button
-              onClick={() => setOpenedConfirmModal(true)}
-              disabled={busy}
-              className="rounded-full w-20 h-20 border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:opacity-50 justify-center items-center"
+              onClick={() => setOpenConfirmRequestAllModal(true)}
+              disabled={busy || get >= limit}
+              className="rounded-full w-20 h-20 border border-[#009345] bg-white px-3 py-3 text-sm font-semibold text-[#009345] hover:bg-emerald-50 disabled:opacity-50"
             >
-              Thoát
+              {loadingAll ? "Đang quay…" : "Chọn tất cả"}
             </button>
             <button
               onClick={onRandomSingle}
@@ -230,12 +231,13 @@ const SelectNumberScreen = () => {
             >
               {loadingOne ? "Đang chọn…" : "Chọn\n01 số"}
             </button>
+
             <button
-              onClick={() => setOpenConfirmRequestAllModal(true)}
-              disabled={busy || get >= limit}
-              className="rounded-full w-20 h-20 border border-[#009345] bg-white px-3 py-3 text-sm font-semibold text-[#009345] hover:bg-emerald-50 disabled:opacity-50"
+              onClick={() => setOpenedConfirmModal(true)}
+              disabled={busy}
+              className="rounded-full w-20 h-20 border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:opacity-50 justify-center items-center"
             >
-              {loadingAll ? "Đang quay…" : "Chọn tất cả"}
+              Thoát
             </button>
           </div>
         </div>

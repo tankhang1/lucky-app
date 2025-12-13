@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Gift, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Text } from "zmp-ui";
 
@@ -62,8 +62,8 @@ export function SelectedNumberList({
             </span>
 
             {num.isWin && (
-              <span className="absolute -top-1.5 -right-1.5">
-                <Star size={12} color="orange" />
+              <span className="absolute -top-1 -right-1 rounded-full bg-amber-500 p-1.5 shadow">
+                <Gift size={12} />
               </span>
             )}
           </div>
@@ -73,14 +73,14 @@ export function SelectedNumberList({
       {maxPage > 1 && (
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page <= 1}
             onClick={() => setPage(1)}
           >
             Đầu
           </button>
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
@@ -98,7 +98,7 @@ export function SelectedNumberList({
                 <button
                   onClick={() => setPage(n)}
                   className={[
-                    "rounded-full px-3 py-1 text-xs font-medium",
+                    "rounded-full px-3 py-1 text-sm font-medium",
                     n === page
                       ? "bg-[#009345] text-white"
                       : "border text-neutral-700 hover:bg-neutral-50",
@@ -111,21 +111,21 @@ export function SelectedNumberList({
           })}
 
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page >= maxPage}
             onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
           >
             Sau
           </button>
           <button
-            className="rounded-full border px-3 py-1 text-xs font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
+            className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
             disabled={page >= maxPage}
             onClick={() => setPage(maxPage)}
           >
             Cuối
           </button>
 
-          <span className="ml-2 text-xs text-neutral-500">
+          <span className="ml-2 text-sm text-neutral-500">
             Trang {page}/{maxPage} • {numbers.length} số
           </span>
         </div>

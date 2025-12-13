@@ -89,7 +89,6 @@ export default function DigitReel({
 
   return (
     <div
-      onClick={onClick}
       className="relative overflow-hidden rounded-lg border bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-900 dark:to-neutral-800 cursor-pointer"
       style={{ height: h, width: h }}
     >
@@ -97,7 +96,7 @@ export default function DigitReel({
         {list.map((d, i) => (
           <div
             key={`${d}-${i}`}
-            className="flex items-center justify-center font-mono font-bold"
+            className="flex items-center justify-center font-manrope font-bold"
             style={{ height: h, fontSize: `${h * 0.44}px` }}
           >
             {d}

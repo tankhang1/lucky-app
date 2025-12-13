@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         mono: ["Roboto Mono", "monospace"],
+        manrope: ["var(--font-manrope)", "sans-serif"],
       },
       colors: {
         brand: {
@@ -42,4 +43,20 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    require("@tailwindcss/line-clamp"),
+    // 👇 Optional: define extra clamps if you want beyond defaults
+    function ({ addUtilities }) {
+      const newUtilities = {};
+      for (let i = 1; i <= 20; i++) {
+        newUtilities[`.line-clamp-${i}`] = {
+          display: "-webkit-box",
+          WebkitLineClamp: `${i}`,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        };
+      }
+      addUtilities(newUtilities, ["responsive"]);
+    },
+  ],
 };

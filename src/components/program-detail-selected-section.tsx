@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { SelectedNumberList } from "./program-detail-selected-list";
+import { TResultLuckyNumberItem } from "@/redux/api/campaign/campaign.response";
 
 export default function LuckyNumbersSection({
   programDetail,
   results,
 }: {
   programDetail?: { number_get?: number; number_limit?: number };
-  results?: { number: string | number; award_name?: string | null }[];
+  results?: TResultLuckyNumberItem[];
 }) {
   const get = programDetail?.number_get ?? 0;
   const limit = programDetail?.number_limit ?? 0;
@@ -50,7 +51,7 @@ export default function LuckyNumbersSection({
           </div>
           <div className="mt-1.5 flex items-center justify-between text-xs text-neutral-500">
             <span>0%</span>
-            <span>{pct}%</span>
+            {/* <span>{pct}%</span> */}
             <span>100%</span>
           </div>
         </div>
@@ -64,16 +65,18 @@ export default function LuckyNumbersSection({
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> Trúng
               thưởng
             </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-neutral-300" /> Bình
-              thường
-            </span>
+            {/* <span className="inline-flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-neutral-300" /> Bình
+                thường
+              </span> */}
           </div>
         </div>
 
         <SelectedNumberList
           numbers={(results ?? []).map((item) => ({
-            isWin: !!item?.award_name,
+            isWin: Boolean(
+              item.gift_name || item.gift_image || item.award_name
+            ),
             number: +item.number,
           }))}
           pageSize={30}
