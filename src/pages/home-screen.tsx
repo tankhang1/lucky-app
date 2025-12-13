@@ -10,6 +10,7 @@ import { Box, Text, useNavigate, Spinner } from "zmp-ui";
 import Leaf from "@/assets/leaf.png";
 import CampaignCard from "@/components/campaign-card";
 import SegmentedTabs from "@/components/segmented-tabs";
+import { useGetZaloInfoQuery } from "@/redux/api/auth/auth.api";
 export type Program = {
   id: string;
   title: string;
@@ -46,8 +47,11 @@ const dtoCampaign = (value: TCampaginItem): Program => {
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-  const { p } = useSelector((state: RootState) => state.app);
+  const { p, userId } = useSelector((state: RootState) => state.app);
   const [tab, setTab] = useState<string>("running");
+  const { data: info } = useGetZaloInfoQuery({
+    z: userId,
+  });
   const { data: listActiveCampaigns, isLoading: isLoadingListActiveCampaign } =
     useGetListActiveCampaginQuery(
       {
@@ -83,17 +87,20 @@ const HomeScreen = () => {
       <Box className="sticky top-0 z-30 bg-[#009345]">
         <div className="relative flex items-center gap-4 px-5 pb-3 pt-14">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGAHsZHDHoPw_98PpYAG1JkQwieYYUKXdFog&s"
+            src={
+              info?.avatar ||
+              "https://us.123rf.com/450wm/salamatik/salamatik1801/salamatik180100019/92979836-perfil-an%C3%B4nimo-rosto-%C3%ADcone-pessoa-silhueta-cinza-avatar-padr%C3%A3o-masculino-foto-espa%C3%A7o-reservado.jpg?ver=6"
+            }
             alt="Mappacific"
             className="relative h-11 w-11 rounded-full object-cover ring-2 ring-white/80"
           />
 
           <div>
             <Text className="text-white font-semibold text-lg tracking-wide leading-snug">
-              Nguyễn Văn A
+              {info?.name || ""}
             </Text>
             <Text className="text-white/70 text-xs tracking-wide">
-              +84&nbsp;352&nbsp;231&nbsp;222
+              {info?.phone || ""}
             </Text>
           </div>
 

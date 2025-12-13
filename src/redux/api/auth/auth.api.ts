@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 import {
   TCheckUserIdRes,
   TConfirmOtpRes,
+  TGetZaloInfoRes,
   TLoginRes,
   TOtpRes,
   TUpdateZaloInfoRes,
@@ -9,6 +10,7 @@ import {
 import {
   TCheckUserIdReq,
   TConfirmOtpReq,
+  TGetZaloInfoReq,
   TLoginReq,
   TOtpReq,
   TUpdateZaloInfoReq,
@@ -47,6 +49,13 @@ export const authApi = createApi({
         body,
       }),
     }),
+    getZaloInfo: build.query<TGetZaloInfoRes, TGetZaloInfoReq>({
+      query: (params) => ({
+        url: "/collect/profile",
+        method: "GET",
+        params,
+      }),
+    }),
     updateZaloInfo: build.mutation<TUpdateZaloInfoRes, TUpdateZaloInfoReq>({
       query: (body) => ({
         url: "/zalo/update",
@@ -62,5 +71,6 @@ export const {
   useConfirmOTPMutation,
   useGetOTPMutation,
   useLoginMutation,
+  useGetZaloInfoQuery,
   useUpdateZaloInfoMutation,
 } = authApi;

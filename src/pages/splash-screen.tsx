@@ -223,7 +223,6 @@ const SplashScreen = () => {
                 <Button
                   onClick={onLoginWithZalo}
                   disabled={isLoadingCheckUserId || manualLoading}
-                  loading={isLoadingCheckUserId || manualLoading}
                   className="h-12 w-full rounded-xl font-semibold bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50 shadow mt-4"
                   prefixIcon={
                     <img
@@ -233,7 +232,9 @@ const SplashScreen = () => {
                     />
                   }
                 >
-                  Đăng nhập với Zalo
+                  {isLoadingCheckUserId || manualLoading
+                    ? "Đang xử lí..."
+                    : "Đăng nhập với Zalo"}
                 </Button>
 
                 <Box className="mt-6 text-center">

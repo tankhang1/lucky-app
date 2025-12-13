@@ -16,3 +16,14 @@ export type TUpdateZaloInfoRes = {
   };
   message: string;
 };
+
+export type TGetZaloInfoRes = {
+  code: string;
+  province: string;
+  phone: string;
+  name: string;
+  avatar: string;
+  address: string;
+  group: string;
+  area: string;
+};

@@ -30,3 +30,7 @@ export type TUpdateZaloInfoReq = {
   code?: string;
   code_hash?: string;
 };
+
+export type TGetZaloInfoReq = {
+  z: string;
+};
