@@ -44,7 +44,7 @@ export default function LuckyOptionModal({
             Chọn cách tham gia
           </Text>
           <Text className="mt-1 text-sm text-white/90">
-            Hãy chọn cách bạn muốn quay số may mắn hôm nay!
+            Hãy chọn cách bạn muốn chọn số may mắn hôm nay!
           </Text>
 
           <div className="mt-6 flex flex-col gap-3">

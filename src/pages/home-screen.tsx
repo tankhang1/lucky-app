@@ -6,11 +6,12 @@ import { TCampaginItem } from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Text, useNavigate, Spinner } from "zmp-ui";
+import { Box, Text, useNavigate, Spinner, Input } from "zmp-ui";
 import Leaf from "@/assets/leaf.png";
 import CampaignCard from "@/components/campaign-card";
 import SegmentedTabs from "@/components/segmented-tabs";
 import { useGetZaloInfoQuery } from "@/redux/api/auth/auth.api";
+import { SearchIcon } from "lucide-react";
 export type Program = {
   id: string;
   title: string;
@@ -49,6 +50,7 @@ const HomeScreen = () => {
   const navigate = useNavigate();
   const { p, userId } = useSelector((state: RootState) => state.app);
   const [tab, setTab] = useState<string>("running");
+  const [search, setSearch] = useState("");
   const { data: info } = useGetZaloInfoQuery({
     z: userId,
   });
@@ -71,12 +73,15 @@ const HomeScreen = () => {
 
   const others = useMemo(
     () =>
-      tab === "running"
+      (tab === "running"
         ? listActiveCampaigns || []
         : tab === "ended"
         ? listExpiredCampaigns || []
-        : [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])],
-    [tab, listActiveCampaigns, listExpiredCampaigns]
+        : [...(listActiveCampaigns || []), ...(listExpiredCampaigns || [])]
+      ).filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      ),
+    [tab, listActiveCampaigns, listExpiredCampaigns, search]
   );
 
   const onProgramDetail = (id: string) => navigate(`/program/${id}`);
@@ -115,7 +120,10 @@ const HomeScreen = () => {
 
       <SegmentedTabs
         value={tab}
-        onChange={setTab}
+        onChange={(k) => {
+          setTab(k);
+          setSearch("");
+        }}
         tabs={[
           { key: "running", label: "Đang diễn ra" },
           { key: "ended", label: "Đã kết thúc" },
@@ -124,7 +132,17 @@ const HomeScreen = () => {
       />
 
       {/* Main Content */}
-      <Box className="flex-1 py-4 space-y-8 overflow-hidden">
+      <Box className="px-4 mt-3">
+        <Input
+          prefix={<SearchIcon size={18} color="gray" />}
+          className="px-2 border-none font-manrope"
+          placeholder="Nhập tên chương trình"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          clearable
+        />
+      </Box>
+      <Box className="flex-1 pt-2 pb-4 space-y-8 overflow-hidden">
         <div className="px-5">
           {/* Section Header */}
           <div className="mb-3 flex items-center justify-between">

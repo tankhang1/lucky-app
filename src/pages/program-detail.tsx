@@ -24,11 +24,14 @@ import {
   CalendarOff,
   ChevronDown,
   ChevronUp,
+  FileAudioIcon,
   FileText,
+  SpeakerIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-// import { openDocument } from "zmp-sdk";
+import { toast } from "react-toastify";
+import { openDocument } from "zmp-sdk";
 import {
   Page,
   Box,
@@ -71,6 +74,7 @@ type Program = {
   prizes: Prize[];
   joined?: boolean;
   pdf: string;
+  audio_link: string;
 };
 
 const TABS = [
@@ -108,7 +112,7 @@ type TProgramDetail = {
 const ProgramDetailScreen = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { p, userId } = useSelector((state: RootState) => state.app);
+  const { p } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
     useGetCampaignDetailQuery(
       {
@@ -149,15 +153,7 @@ const ProgramDetailScreen = () => {
       refetchOnReconnect: true,
     }
   );
-  const [requestLuckNumber, { isLoading: isLoadingRequestLuckyNumber }] =
-    useRequestLuckNumberMutation();
-  const [requestAllLuckNumber, { isLoading: isLoadingRequestAllLuckyNumber }] =
-    useRequestLuckNumberMutation();
-  // const [resultLuckyNumber, setResultLuckyNumber] = useState<TLuckResultItem>();
-  // const [listResultLuckyNumber, setListResultLuckyNumber] = useState<
-  //   TLuckResultItem[]
-  // >([]);
-  // const [openConfirm, setOpenConfirm] = useState(false);
+
   const [messageError, setMessageError] = useState("");
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
@@ -183,6 +179,7 @@ const ProgramDetailScreen = () => {
         joined: programDetail?.joined || 0,
         slogan: "Tung bung he thu",
         pdf: programDetail?.pdf,
+        audio_link: programDetail?.audio_link || "",
       },
       participants: [],
       results: listResult || [],
@@ -192,50 +189,39 @@ const ProgramDetailScreen = () => {
   const { program, participants, results } = data;
   const [openedMore, setOpenedMore] = useState(false);
   const [tab, setTab] = useState<string>("info");
-  // const [openedLucky, setOpenedLucky] = useState(false);
-  // const [openedListLucky, setOpenedListLucky] = useState(false);
+  const [audioInfo, setAudioInfo] = useState<HTMLAudioElement | null>(null);
 
   const openPDF = () => {
-    // openDocument({
-    //   url: program?.pdf,
-    //   title: "Thông tin chi tiết",
-    //   download: true,
-    // });
+    stopSound();
+    if (!program?.pdf) {
+      toast.info("Không có thông tin PDF");
+      return;
+    }
+    openDocument({
+      url: program?.pdf,
+      title: "Thông tin chi tiết",
+      download: true,
+    });
   };
-  // const onRandomSingle = async () => {
-  //   await requestLuckNumber({
-  //     phone: p,
-  //     zalo_user_id: userId,
-  //     turn_all: 0,
-  //     campaign_code: id || "",
-  //   })
-  //     .unwrap()
-  //     .then((value) => {
-  //       setResultLuckyNumber(value.data?.[0]);
-  //       refetchListResult();
-  //       setOpenedLucky(true);
-  //     })
-  //     .catch((error) => {
-  //       setMessageError(error.data.message);
-  //     });
-  // };
-  // const onRandomAll = async () => {
-  //   await requestAllLuckNumber({
-  //     phone: p,
-  //     zalo_user_id: userId,
-  //     turn_all: 1,
-  //     campaign_code: id || "",
-  //   })
-  //     .unwrap()
-  //     .then((value) => {
-  //       setListResultLuckyNumber(value.data);
-  //       refetchListResult();
-  //       setOpenedListLucky(true);
-  //     })
-  //     .catch((error) => {
-  //       setMessageError(error.data.message);
-  //     });
-  // };
+  const playSound = () => {
+    if (!program?.audio_link) {
+      toast.info("Không có thông tin Audio");
+      return;
+    }
+    const audio = new Audio(program?.audio_link);
+    setAudioInfo(audio);
+    audio.play().catch((error) => {
+      console.log("Playback failed:", error);
+    });
+  };
+  const stopSound = () => {
+    if (!audioInfo) {
+      return;
+    }
+    audioInfo.pause();
+    audioInfo.currentTime = 0;
+  };
+
   useEffect(() => {
     if (!isLoadingProgramDetail && !programDetail?.code) {
       navigate("/home");
@@ -246,7 +232,10 @@ const ProgramDetailScreen = () => {
       <Header
         title={program.title}
         backgroundColor="bg-white/70 backdrop-blur-md"
-        onBackClick={() => navigate("/home")}
+        onBackClick={() => {
+          stopSound();
+          navigate("/home");
+        }}
         className="relative"
       />
 
@@ -288,6 +277,12 @@ const ProgramDetailScreen = () => {
                   className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-5 right-5"
                 >
                   <FileText className="w-4 h-4 text-neutral-700" />
+                </button>
+                <button
+                  onClick={playSound}
+                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-16 right-5"
+                >
+                  <FileAudioIcon className="w-4 h-4 text-neutral-700" />
                 </button>
                 {!!program.description && (
                   <div>
@@ -380,10 +375,10 @@ const ProgramDetailScreen = () => {
               program.status !== "open" ||
               programDetail?.number_get === programDetail?.number_limit
             }
-            loading={
-              isLoadingRequestAllLuckyNumber || isLoadingRequestLuckyNumber
-            }
-            onClick={() => navigate(`/select-number/${id}`)}
+            onClick={() => {
+              stopSound();
+              navigate(`/select-number/${id}`);
+            }}
             className={`h-12 flex-1 rounded-xl bg-[#E2672E] hover:bg-[#d56632] text-white font-semibold ${
               (program.status !== "open" ||
                 programDetail?.number_get === programDetail?.number_limit) &&
@@ -394,40 +389,6 @@ const ProgramDetailScreen = () => {
           </Button>
         </div>
       </Box>
-
-      {/* <LuckyResultModal
-        openedLucky={openedLucky}
-        onClose={() => setOpenedLucky(false)}
-        onContinue={onRandomSingle}
-        isDisabledContinue={
-          programDetail?.number_get === programDetail?.number_limit
-        }
-        result={{
-          prizeLabel: resultLuckyNumber?.gift_name || "",
-          targetNumber: resultLuckyNumber?.number || 0,
-          winnerPhone: p,
-          code: programDetail?.code,
-          prizeImage: resultLuckyNumber?.gift_image || "",
-          programTitle: programDetail?.name || "",
-          time: new Date().toDateString(),
-        }}
-      />
-      <ListLuckyResultModal
-        isLoading={isLoadingListResult}
-        openedLucky={openedListLucky}
-        onClose={() => setOpenedListLucky(false)}
-        queue={
-          listResultLuckyNumber?.map((item) => ({
-            prizeLabel: item?.gift_name || "",
-            targetNumber: item?.number || 0,
-            winnerPhone: p,
-            code: programDetail?.code || "",
-            prizeImage: item?.gift_image || "",
-            programTitle: programDetail?.name || "123",
-            time: new Date().toDateString(),
-          })) || []
-        }
-      /> */}
 
       <Modal
         visible={messageError !== ""}
@@ -448,19 +409,6 @@ const ProgramDetailScreen = () => {
           </Button>
         </Stack>
       </Modal>
-      {/* <LuckyOptionModal
-        opened={openConfirm}
-        onClose={() => setOpenConfirm(false)}
-        onConfirm={(type) => {
-          setOpenConfirm(false);
-          if (type === "single") {
-            onRandomSingle();
-          } else {
-            onRandomAll();
-            setOpenedListLucky(true);
-          }
-        }}
-      /> */}
     </Page>
   );
 };

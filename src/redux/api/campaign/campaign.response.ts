@@ -24,6 +24,7 @@ export type TGetCampaignDetailRes = {
   time_end: string;
   time_start: string;
   status: number;
+  audio_link: string;
 };
 
 export type TGiftItem = {

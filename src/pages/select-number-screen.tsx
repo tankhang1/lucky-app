@@ -187,7 +187,7 @@ const SelectNumberScreen = () => {
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-medium mt-4">Danh sách số</p>
             <p className="text-xs text-neutral-500">
-              {numbers.filter((n) => n.number !== -1).length} số đã quay
+              {numbers.filter((n) => n.number !== -1).length} số đã chọn
             </p>
           </div>
 
@@ -222,7 +222,7 @@ const SelectNumberScreen = () => {
               disabled={busy || get >= limit}
               className="rounded-full w-20 h-20 border border-[#009345] bg-white px-3 py-3 text-sm font-semibold text-[#009345] hover:bg-emerald-50 disabled:opacity-50"
             >
-              {loadingAll ? "Đang quay…" : "Chọn tất cả"}
+              {loadingAll ? "Đang chọn..." : "Chọn tất cả"}
             </button>
             <button
               onClick={onRandomSingle}

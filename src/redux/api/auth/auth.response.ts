@@ -25,5 +25,5 @@ export type TGetZaloInfoRes = {
   avatar: string;
   address: string;
   group: string;
-  area: string;
+  are: string;
 };

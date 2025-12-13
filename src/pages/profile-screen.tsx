@@ -16,15 +16,15 @@ export default function ProfileScreen() {
     () => ({
       name: info?.name || "-",
       phone: info?.phone || "-",
-      role: "-",
-      group: "-",
+      address: info?.province || "",
+      group: info?.group || "-",
       avatar:
         info?.avatar ||
         "https://us.123rf.com/450wm/salamatik/salamatik1801/salamatik180100019/92979836-perfil-an%C3%B4nimo-rosto-%C3%ADcone-pessoa-silhueta-cinza-avatar-padr%C3%A3o-masculino-foto-espa%C3%A7o-reservado.jpg?ver=6",
       website: "https://mappacific.com",
       zaloOALink: "https://zalo.me/1234567890",
       location: "VNTT",
-      area: "Vùng đồng bằng sông cửu long",
+      area: info?.are || "-",
     }),
     [info]
   );
@@ -86,7 +86,7 @@ export default function ProfileScreen() {
                 Địa chỉ
               </Text>
               <Text className="text-base text-neutral-800">
-                {profile.location}
+                {profile.address}
               </Text>
             </Stack>
           </Box>
