@@ -6,7 +6,9 @@ import {
   useGetListCampaignHistoryQuery,
   useSearchHistoryCampaignQuery,
 } from "@/redux/api/campaign/campaign.api";
-import { Page, Box, Text, Input, Icon, Avatar, Button, Header } from "zmp-ui";
+import { Page, Box, Text, Input, Icon, Header, useNavigate } from "zmp-ui";
+
+// --- TYPES DEFINITION ---
 
 export type TGetListCampaignHistoryItem = {
   number: number;
@@ -17,13 +19,18 @@ export type TGetListCampaignHistoryItem = {
   gift_image: string;
   gift_name: string;
 };
+
 export type TGetListCampaignHistoryRes = TGetListCampaignHistoryItem[];
 
+// Cập nhật Type cho Campaign để chứa thông tin thống kê
 export type TSearchCampaignItem = {
   id: number;
   uuid: string;
-  code: string; // dùng code để gọi API lịch sử
+  code: string;
   name: string;
+  image?: string; // Ảnh chương trình
+  total_win?: number; // Đã trúng bao nhiêu giải
+  total_selected?: number; // Tổng số đã chọn
   time_create: string;
   time_create_number: number;
   time_start: string;
@@ -40,15 +47,20 @@ const TABS = [
   { key: "month", label: "Tháng này" },
   { key: "all", label: "Tất cả" },
 ] as const;
+
 type TimeFilter = (typeof TABS)[number]["key"];
+
+// --- HELPER FUNCTIONS ---
 
 const fmtDate = (iso?: string) => {
   if (!iso) return "";
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleString("vi-VN");
 };
+
 const startOfDay = (d = new Date()) =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
 const startOfWeek = (d = new Date()) => {
   const day = d.getDay() || 7;
   const s = new Date(d);
@@ -56,6 +68,7 @@ const startOfWeek = (d = new Date()) => {
   s.setDate(s.getDate() - (day - 1));
   return s;
 };
+
 const startOfMonth = (d = new Date()) =>
   new Date(d.getFullYear(), d.getMonth(), 1);
 
@@ -68,128 +81,74 @@ function usePageNumbers(page: number, maxPage: number, span = 1) {
   return [...pages].filter((p) => p >= 1 && p <= maxPage).sort((a, b) => a - b);
 }
 
-const CardItem = ({ r }: { r: TGetListCampaignHistoryItem }) => {
-  const isWin = Boolean(r.gift_name || r.gift_image || r.award_name);
+const CampaignSummaryCard = ({
+  item,
+  onClick,
+}: {
+  item: TSearchCampaignItem;
+  onClick: () => void;
+}) => {
   return (
-    <li
-      className={[
-        "group rounded-2xl p-3 sm:p-4 ring-1 backdrop-blur transition",
-        isWin
-          ? "bg-white/90 ring-black/5"
-          : "bg-neutral-50/80 ring-neutral-200",
-      ].join(" ")}
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm active:scale-[0.98] transition-transform flex gap-4 items-center"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs text-neutral-500">{fmtDate(r.time)}</div>
-          <div className="mt-0.5 text-sm font-semibold text-neutral-900 truncate">
-            {r.name}
+      <div className="shrink-0 w-16 h-16 rounded-xl bg-neutral-100 overflow-hidden border border-neutral-100">
+        {item.image ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full grid place-items-center text-neutral-400">
+            <Icon icon="zi-star" />
           </div>
-          <div className="text-xs text-neutral-600 truncate">
-            Số may mắn: #{r.number}
-          </div>
-        </div>
-        <span
-          className={[
-            "shrink-0 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
-            isWin
-              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-              : "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-          ].join(" ")}
-        >
-          {isWin ? "Trúng thưởng" : "Đang chờ"}
-        </span>
+        )}
       </div>
 
-      {isWin ? (
-        <>
-          <div className="mt-3 flex items-center gap-3">
-            {r.gift_image ? (
-              <img src={r.gift_image} className="w-20 object-cover" />
-            ) : (
-              <Box className="h-11 w-11 rounded-xl bg-amber-100 grid place-items-center ring-2 ring-amber-200">
-                <Icon icon="zi-file" className="text-amber-700" />
-              </Box>
-            )}
-            <div className="min-w-0">
-              <div className="truncate text-sm font-medium text-neutral-900">
-                {r.gift_name || r.award_name || "Giải thưởng"}
-              </div>
-              <div className="mt-0.5 text-xs text-neutral-500">
-                Trao thưởng: {fmtDate(r.award_time)}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
-              <div className="text-2xs uppercase tracking-wide text-neutral-500">
-                Giải thưởng
-              </div>
-              <div className="mt-0.5 font-semibold text-neutral-900 truncate">
-                {r.award_name || "—"}
-              </div>
-            </div>
-            <div className="rounded-xl bg-white/70 p-3 ring-1 ring-black/5">
-              <div className="text-2xs uppercase tracking-wide text-neutral-500">
-                Số trúng
-              </div>
-              <div className="mt-0.5 font-semibold text-neutral-900">
-                {r.number}
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="mt-3 rounded-xl border border-dashed border-neutral-300 bg-white/60 p-3 text-center">
-          <div className="text-sm text-neutral-600">Đang chờ kết quả</div>
+      <div className="flex-1 min-w-0">
+        <Text className="font-bold text-neutral-800 line-clamp-2 text-sm uppercase mb-2">
+          {item.name}
+        </Text>
+        <div className="inline-flex items-center bg-orange-50 text-orange-700 text-xs px-2.5 py-1 rounded-lg font-medium border border-orange-100">
+          <span>
+            Đã trúng: <b>{item.total_win || 0}</b> / {item.total_selected || 0}
+          </span>
         </div>
-      )}
-    </li>
+      </div>
+
+      <Icon icon="zi-chevron-right" className="text-neutral-400 shrink-0" />
+    </div>
   );
 };
 
 const HistoryLuckyResultPage = () => {
   const { p } = useSelector((state: RootState) => state.app);
+  const navigate = useNavigate();
+  const [programCode, setProgramCode] = useState<string | undefined>(undefined);
 
   const [q, setQ] = useState("");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [tab, setTab] = useState<TimeFilter>("all");
+  const [page, setPage] = useState(1);
 
-  // code chương trình đang chọn (KHÔNG có "all")
-  const [programCode, setProgramCode] = useState<string | undefined>(undefined);
+  const { data: searchCampaigns, isLoading: isLoadingCampaigns } =
+    useSearchHistoryCampaignQuery(
+      { k: "" },
+      {
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+        refetchOnReconnect: true,
+      }
+    );
 
-  // danh sách chương trình để user chọn
-  const { data: searchCampaigns } = useSearchHistoryCampaignQuery(
-    { k: "" },
-    {
-      refetchOnFocus: true,
-      refetchOnMountOrArgChange: true,
-      refetchOnReconnect: true,
-    }
-  );
+  const selectedCampaign = useMemo(() => {
+    return (searchCampaigns as TSearchCampaignItem[] | undefined)?.find(
+      (c) => c.code === programCode
+    );
+  }, [searchCampaigns, programCode]);
 
-  // chuẩn hóa options duy nhất theo code
-  const programOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const arr =
-      (searchCampaigns as TSearchCampaignItem[] | undefined)?.filter((c) => {
-        if (!c?.code) return false;
-        if (seen.has(c.code)) return false;
-        seen.add(c.code);
-        return true;
-      }) ?? [];
-    return arr.map((c) => ({ code: c.code, name: c.name }));
-  }, [searchCampaigns]);
-
-  // nếu chưa có code được chọn → auto chọn chương trình đầu tiên
-  useEffect(() => {
-    if (!programCode && programOptions.length) {
-      setProgramCode(programOptions[0].code);
-    }
-  }, [programOptions, programCode]);
-
-  // gọi API lịch sử theo code chương trình đã chọn
   const { data: listGiftHistory, isLoading: isLoadingListGiftHistory } =
     useGetListCampaignHistoryQuery(
       { c: programCode ?? "", p },
@@ -201,11 +160,12 @@ const HistoryLuckyResultPage = () => {
       }
     );
 
-  // lọc + sắp xếp + phân trang (toàn danh sách)
-  const [page, setPage] = useState(1);
+  // -- Logic Filter & Pagination --
   const pageSize = 12;
 
   const filtered = useMemo(() => {
+    if (!programCode) return []; // Không cần tính toán ở màn danh sách
+
     const s = q.trim().toLowerCase();
     const now = new Date();
     const boundary =
@@ -225,205 +185,70 @@ const HistoryLuckyResultPage = () => {
             `${r.name} ${r.award_name} ${r.gift_name} ${r.number}`.toLowerCase();
           return hay.includes(s);
         })
-        // KHÔNG lọc theo chương trình ở client nữa – API đã lọc theo "c"
         .filter((r) => (boundary ? new Date(r.time) >= boundary : true))
+        // Sắp xếp mới nhất lên đầu
         .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     );
-  }, [listGiftHistory, q, timeFilter]);
+  }, [listGiftHistory, q, timeFilter, programCode]);
 
+  // Reset page khi đổi điều kiện lọc
   useEffect(() => {
     setPage(1);
   }, [q, timeFilter, programCode]);
 
   const total = filtered.length;
   const maxPage = Math.max(1, Math.ceil(total / pageSize));
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const pageItems = filtered.slice(start, end);
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = startIdx + pageSize;
+  const pageItems = filtered.slice(startIdx, endIdx);
   const nums = usePageNumbers(page, maxPage, 1);
 
+  // -- Handlers --
+
+  const handleBack = () => {
+    if (programCode) {
+      setProgramCode(undefined);
+      setQ("");
+      setTimeFilter("all");
+      setTab("all");
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const onProgramDetail = (id: string) => navigate(`/program/${id}`);
   return (
-    <Page className="min-h-screen bg-neutral-50">
+    <Page className="min-h-screen bg-neutral-50 flex flex-col">
       <Header
-        title="Lịch sử trúng thưởng"
-        className="relative"
-        showBackIcon={false}
+        title={programCode ? "Chi tiết tham gia" : "Lịch sử chương trình"}
+        className="relative z-50 bg-white"
+        showBackIcon={true}
+        onBackClick={handleBack}
       />
-      <div className="px-5 pb-4 pt-5">
-        <div className="rounded-2xl bg-white border border-neutral-200">
-          <Input
-            placeholder="Tìm kiếm (tên CT/giải/số trúng)…"
-            value={q}
-            onChange={(e) => setQ((e.target as HTMLInputElement).value)}
-            prefix={
-              <Box className="pl-4">
-                <Icon icon="zi-search" className="text-neutral-400" />
-              </Box>
-            }
-            className="!bg-white !border-0 !rounded-2xl h-9"
-          />
-        </div>
 
-        {/* Tabs mốc thời gian */}
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {TABS.map((t) => {
-            const active = tab === t.key;
-            return (
-              <button
-                key={t.key}
-                onClick={() => {
-                  setTab(t.key);
-                  setTimeFilter(t.key as TimeFilter);
-                }}
-                className={`h-10 rounded-full px-4 text-sm whitespace-nowrap transition ${
-                  active
-                    ? "bg-[#009345] text-white"
-                    : "bg-white border border-neutral-200 text-neutral-700"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Dải chọn CHƯƠNG TRÌNH – KHÔNG có 'Tất cả' */}
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {programOptions.length === 0 ? (
-            <span className="text-xs text-neutral-500">
-              Chưa có chương trình khả dụng
-            </span>
-          ) : (
-            programOptions.map((opt) => {
-              const active = programCode === opt.code;
-              return (
-                <button
-                  key={opt.code}
-                  onClick={() => setProgramCode(opt.code)}
-                  className={`h-9 rounded-full px-3 text-xs whitespace-nowrap transition ${
-                    active
-                      ? "bg-[#E2672E] text-white"
-                      : "bg-white border border-neutral-200 text-neutral-700"
-                  }`}
-                  title={opt.name}
-                >
-                  {opt.name}
-                </button>
-              );
-            })
-          )}
-
-          {/* Xóa lọc chỉ reset keyword + time, KHÔNG đổi chương trình */}
-          {(Boolean(q) || timeFilter !== "all") && (
-            <Button
-              size="small"
-              className="ml-1 !h-9 !px-3 !text-xs !bg-neutral-100 !text-neutral-700 hover:!bg-neutral-200"
-              onClick={() => {
-                setQ("");
-                setTimeFilter("all");
-                setTab("all");
-              }}
-            >
-              Xóa lọc
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <Box className="p-4 space-y-6">
-        {(!programCode && programOptions.length > 0) ||
-        isLoadingListGiftHistory ? (
-          <Box className="grid place-items-center py-16 text-neutral-500">
-            <Text className="text-sm">Đang tải…</Text>
-          </Box>
-        ) : !programCode ? (
-          <Box className="grid place-items-center text-center text-neutral-600 py-16">
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12">
-              <Text className="text-base font-semibold">
-                Chưa chọn chương trình
-              </Text>
-              <Text className="mt-1 text-sm">
-                Hãy chọn một chương trình để xem lịch sử.
-              </Text>
-            </div>
-          </Box>
-        ) : !total ? (
-          <Box className="grid place-items-center text-center text-neutral-600 py-16">
-            <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12">
-              <Text className="text-base font-semibold">Không có kết quả</Text>
-              <Text className="mt-1 text-sm">
-                Thử đổi từ khóa hoặc mốc thời gian.
-              </Text>
-            </div>
-          </Box>
+      <Box className="p-4 space-y-4 flex-1 pb-10">
+        {isLoadingCampaigns ? (
+          <div className="flex justify-center py-10">
+            <div className="loading-spinner text-neutral-400">Đang tải...</div>
+          </div>
         ) : (
-          <>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((r, idx) => (
-                <CardItem key={`${r.number}-${r.time}-${start + idx}`} r={r} />
-              ))}
-            </ul>
+          <div className="flex flex-col gap-3">
+            {(searchCampaigns as TSearchCampaignItem[] | undefined)?.map(
+              (item) => (
+                <CampaignSummaryCard
+                  key={item.code || item.id}
+                  item={item}
+                  onClick={() => onProgramDetail(item.code)}
+                />
+              )
+            )}
 
-            {/* Pagination */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <button
-                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
-                disabled={page <= 1}
-                onClick={() => setPage(1)}
-              >
-                Đầu
-              </button>
-              <button
-                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Trước
-              </button>
-
-              {nums.map((n, i, arr) => {
-                const prev = arr[i - 1];
-                const showDots = i > 0 && n - (prev ?? n) > 1;
-                return (
-                  <span key={n} className="inline-flex">
-                    {showDots && (
-                      <span className="px-1 text-sm text-neutral-500">…</span>
-                    )}
-                    <button
-                      onClick={() => setPage(n)}
-                      className={[
-                        "rounded-full px-3 py-1 text-xs font-medium",
-                        n === page
-                          ? "bg-neutral-900 text-white"
-                          : "border text-neutral-700 hover:bg-neutral-50",
-                      ].join(" ")}
-                    >
-                      {n}
-                    </button>
-                  </span>
-                );
-              })}
-
-              <button
-                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
-                disabled={page >= maxPage}
-                onClick={() => setPage((p) => Math.min(maxPage, p + 1))}
-              >
-                Sau
-              </button>
-              <button
-                className="rounded-full border px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-40 hover:bg-neutral-50"
-                disabled={page >= maxPage}
-                onClick={() => setPage(maxPage)}
-              >
-                Cuối
-              </button>
-
-              <span className="ml-2 text-sm text-neutral-500">
-                Trang {page}/{maxPage} • {total} mục
-              </span>
-            </div>
-          </>
+            {(!searchCampaigns || (searchCampaigns as any[]).length === 0) && (
+              <div className="text-center py-12 text-neutral-500">
+                <Text>Hiện chưa có chương trình nào.</Text>
+              </div>
+            )}
+          </div>
         )}
       </Box>
     </Page>

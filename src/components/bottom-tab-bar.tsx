@@ -1,4 +1,4 @@
-import { Dices, NotepadText, User } from "lucide-react";
+import { Dices, History, NotepadText, User } from "lucide-react";
 import { ReactNode } from "react";
 import { Box } from "zmp-ui";
 import { useLocation, useNavigate } from "zmp-ui";
@@ -14,12 +14,14 @@ type TabItem = {
 
 const TABS: TabItem[] = [
   { key: "home", label: "Trang chủ", icon: <NotepadText />, path: "/home" },
-  {
-    key: "logo",
-    icon: <img src={Logo} className="w-14 object-contain" />,
-    path: "",
-    center: true,
-  },
+  // {
+  //   key: "logo",
+  //   icon: <img src={Logo} className="w-14 object-contain" />,
+  //   path: "",
+  //   center: true,
+  // },
+  { key: "history", label: "Lịch sử", icon: <History />, path: "/history" },
+
   { key: "profile", label: "Cá nhân", icon: <User />, path: "/profile" },
 ];
 
@@ -32,16 +34,15 @@ export default function BottomTabBar() {
     <Box className="fixed bottom-0 inset-x-0 z-30">
       <Box className="pointer-events-none absolute -top-6 inset-x-6 h-12 rounded-full bg-gradient-to-t from-black/5 to-transparent blur" />
       <Box
-        className="mx-auto mb-0 max-w-screen-sm rounded-t-2xl"
+        className="mx-auto mb-0 max-w-screen-sm rounded-t-2xl bg-white"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <svg
+        {/* <svg
           className="absolute inset-x-0 bottom-0 h-[72px] w-full rotate-180"
           viewBox="0 0 100 72"
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Thanh trắng có 2 bên thẳng, giữa lõm mượt và sâu hơn */}
           <path
             d="
       M0,0 
@@ -55,7 +56,6 @@ export default function BottomTabBar() {
     "
             fill="#ffffff"
           />
-          {/* viền nhẹ */}
           <path
             d="
       M0,0 
@@ -71,7 +71,7 @@ export default function BottomTabBar() {
             stroke="rgba(0,0,0,0.08)"
             strokeWidth="0.6"
           />
-        </svg>
+        </svg> */}
 
         <Box className="grid grid-cols-3 h-16 px-2">
           {TABS.map((it) =>

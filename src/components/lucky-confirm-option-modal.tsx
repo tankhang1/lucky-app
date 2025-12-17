@@ -54,7 +54,7 @@ export default function LuckyOptionModal({
               prefixIcon={<Dice5 size={18} />}
               className="h-12 w-full rounded-full bg-white text-[#B50000] font-semibold shadow-md hover:bg-white/95 flex items-center justify-center gap-2"
             >
-              Chọn 1 số
+              Chọn từng số
             </Button>
 
             <Button

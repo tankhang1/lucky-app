@@ -208,11 +208,17 @@ const ProgramDetailScreen = () => {
       toast.info("Không có thông tin Audio");
       return;
     }
-    const audio = new Audio(program?.audio_link);
-    setAudioInfo(audio);
-    audio.play().catch((error) => {
-      console.log("Playback failed:", error);
-    });
+    if (!audioInfo) {
+      const audio = new Audio(program?.audio_link);
+      setAudioInfo(audio);
+      audio.play().catch((error) => {
+        console.log("Playback failed:", error);
+      });
+    } else {
+      audioInfo.pause();
+      audioInfo.currentTime = 0;
+      setAudioInfo(null);
+    }
   };
   const stopSound = () => {
     if (!audioInfo) {
@@ -220,6 +226,7 @@ const ProgramDetailScreen = () => {
     }
     audioInfo.pause();
     audioInfo.currentTime = 0;
+    setAudioInfo(null);
   };
 
   useEffect(() => {
@@ -234,7 +241,7 @@ const ProgramDetailScreen = () => {
         backgroundColor="bg-white/70 backdrop-blur-md"
         onBackClick={() => {
           stopSound();
-          navigate("/home");
+          navigate(-1);
         }}
         className="relative"
       />

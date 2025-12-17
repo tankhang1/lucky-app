@@ -43,7 +43,7 @@ const CampaignCard = ({
         />
         {p.remaining} lượt chọn
       </div>
-      <div className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-4 py-1.5 text-sm font-semibold text-[#009345] shadow-lg transition-all duration-300 hover:bg-[#009345] hover:text-white">
+      <div className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-4 py-1.5 text-sm font-semibold text-[#009345]">
         Chi tiết
         <ChevronRight size={14} strokeWidth={2} />
       </div>
