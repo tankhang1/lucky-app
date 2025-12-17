@@ -68,11 +68,11 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
   return (
     <div className="overflow-hidden p-[1px]">
       <li className="bg-white ring-1 ring-amber-300/90 py-4 px-2 rounded-xl relative z-30">
-        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute top-[-8px] translate-x-[72px] bg-gray-50 z-50" />
-        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute bottom-[-8px] translate-x-[72px] bg-gray-50 z-50" />
+        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute top-[-8px] translate-x-[90px] bg-gray-50 z-50" />
+        <div className="w-4 h-4 rounded-full ring-1 ring-amber-300/90 absolute bottom-[-8px] translate-x-[90px] bg-gray-50 z-50" />
         <div className="flex items-center gap-3">
           {/* Số may mắn */}
-          <div className="w-[80px] shrink-0 text-center">
+          <div className="w-[90px] shrink-0 text-center">
             <div className="text-[10px] leading-none text-neutral-500 mb-1">
               Số may mắn
             </div>
@@ -100,7 +100,7 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
                 <img
                   src={img}
                   alt={title}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-fill"
                   loading="lazy"
                 />
               ) : (
