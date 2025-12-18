@@ -21,6 +21,7 @@ import ListLuckyResultModal from "@/components/lucky-list-result-modal";
 import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
 import { Gift } from "lucide-react";
+import LuckyLoadingModal from "@/components/lucky-loading-modal";
 
 type TNum = { isWin: boolean; number: number };
 
@@ -229,7 +230,7 @@ const SelectNumberScreen = () => {
               disabled={busy || get >= limit}
               className="rounded-full w-24 h-24 bg-[#009345] px-3 py-3 text-sm font-semibold text-white shadow hover:brightness-105 active:scale-[0.99] disabled:opacity-50 whitespace-pre-line"
             >
-              {loadingOne ? "Đang chọn…" : "Chọn\từng số"}
+              {loadingOne ? "Đang chọn…" : "Chọn\ntừng số"}
             </button>
 
             <button
@@ -299,6 +300,11 @@ const SelectNumberScreen = () => {
             time: new Date().toDateString(),
           })) || []
         }
+      />
+      <LuckyLoadingModal
+        openedLucky={loadingAll}
+        onClose={() => {}}
+        programName={programDetail?.name || ""}
       />
       <Modal
         visible={messageError !== ""}
