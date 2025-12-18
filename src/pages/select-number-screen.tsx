@@ -229,7 +229,7 @@ const SelectNumberScreen = () => {
               disabled={busy || get >= limit}
               className="rounded-full w-24 h-24 bg-[#009345] px-3 py-3 text-sm font-semibold text-white shadow hover:brightness-105 active:scale-[0.99] disabled:opacity-50 whitespace-pre-line"
             >
-              {loadingOne ? "Đang chọn…" : "Chọn\n01 số"}
+              {loadingOne ? "Đang chọn…" : "Chọn\từng số"}
             </button>
 
             <button
