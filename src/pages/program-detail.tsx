@@ -283,13 +283,13 @@ const ProgramDetailScreen = () => {
                   onClick={openPDF}
                   className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-5 right-5"
                 >
-                  <FileText className="w-4 h-4 text-neutral-700" />
+                  <FileText className="w-5 h-5 text-[#E2672E]" />
                 </button>
                 <button
                   onClick={playSound}
-                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-16 right-5"
+                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-[65px] right-5"
                 >
-                  <FileAudioIcon className="w-4 h-4 text-neutral-700" />
+                  <FileAudioIcon className="w-5 h-5 text-green-700" />
                 </button>
                 {!!program.description && (
                   <div>
