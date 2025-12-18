@@ -53,13 +53,20 @@ export type TGetLuckyNumberRes = {
 };
 
 export type TGetListCampaignHistoryItem = {
-  number: number;
-  time: string;
-  name: string;
-  award_name: string;
-  award_time: string;
-  gift_image: string;
-  gift_name: string;
+  id: number;
+  time_start: string;
+  time_start_number: number;
+  time_end: string;
+  time_end_number: number;
+  campaign_code: string;
+  campaign_name: string;
+  image_thumbnail: string;
+  image_banner: string;
+  consumer_code: string;
+  consumer_name: string;
+  consumer_phone: string;
+  counter_get: number;
+  counter_award: number;
 };
 
 export type TGetListCampaignHistoryRes = TGetListCampaignHistoryItem[];
@@ -90,3 +97,20 @@ export type TResultLuckyNumberItem = {
   gift_image: string;
 };
 export type TResultLuckyNumberRes = TResultLuckyNumberItem[];
+
+export type TGetConsumerCampaignHistoryRes = {
+  id: number;
+  time_start: string;
+  time_start_number: number;
+  time_end: string;
+  time_end_number: number;
+  campaign_code: string;
+  campaign_name: string;
+  image_thumbnail: string;
+  image_banner: string;
+  consumer_code: string;
+  consumer_name: string;
+  consumer_phone: string;
+  counter_get: number;
+  counter_award: number;
+};

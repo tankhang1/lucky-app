@@ -19,7 +19,6 @@ export type TGetLuckyNumberReq = {
 };
 
 export type TGetListCampaignHistoryReq = {
-  c: string;
   p: string;
 };
 
@@ -30,4 +29,9 @@ export type TSearchCampaignReq = {
 export type TResultLuckyNumberReq = {
   c: string;
   p: string;
+};
+
+export type TGetConsumerCampaignHistoryReq = {
+  p: string;
+  c: string;
 };
