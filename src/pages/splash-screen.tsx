@@ -26,10 +26,13 @@ import {
   Input,
   Modal,
   Stack,
+  Sheet,
 } from "zmp-ui";
 import Logo from "@/assets/logo.png";
+import { PRIVACY_HTML } from "@/constants/privacy.constant";
 const SplashScreen = () => {
   const dispatch = useDispatch();
+  const [openPrivacy, setOpenPrivacy] = useState(false);
   const [phone, setPhone] = useState("");
   const [hasInfo, setHasInfo] = useState(false);
   const [manualLoading, setManualLoading] = useState(false);
@@ -237,7 +240,10 @@ const SplashScreen = () => {
                     : "Đăng nhập với Zalo"}
                 </Button>
 
-                <Box className="mt-6 text-center">
+                <Box
+                  className="mt-6 text-center"
+                  onClick={() => setOpenPrivacy(true)}
+                >
                   <Text className="text-[11px] leading-snug text-neutral-500">
                     Bằng việc tiếp tục, bạn đồng ý với{" "}
                     <a
@@ -286,6 +292,20 @@ const SplashScreen = () => {
           </Button>
         </Stack>
       </Modal>
+      <Sheet
+        visible={openPrivacy}
+        onClose={() => setOpenPrivacy(false)}
+        mask
+        maskClosable
+        swipeToClose
+        height={400}
+      >
+        <Box
+          p={2}
+          className="overflow-auto font-manrope!"
+          dangerouslySetInnerHTML={{ __html: PRIVACY_HTML }}
+        />
+      </Sheet>
     </Page>
   );
 };

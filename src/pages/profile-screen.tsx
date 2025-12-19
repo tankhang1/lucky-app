@@ -1,6 +1,6 @@
 import { Globe, PhoneCall, Mailbox } from "lucide-react";
 import { Box, Text, Avatar, Header, Stack, Spinner } from "zmp-ui";
-import { openPhone, openWebview } from "zmp-sdk";
+import { followOA, openPhone, openWebview } from "zmp-sdk";
 import { useGetZaloInfoQuery } from "@/redux/api/auth/auth.api";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
@@ -31,6 +31,11 @@ export default function ProfileScreen() {
   const onOpenPhone = async () => {
     await openPhone({
       phoneNumber: "1900 4352",
+    });
+  };
+  const openZaloOA = async () => {
+    await followOA({
+      id: "4030379023193575870",
     });
   };
 
@@ -121,7 +126,7 @@ export default function ProfileScreen() {
 
             <Box className="flex flex-col justify-center items-center gap-1">
               <Box
-                onClick={() => openWebview({ url: profile.zaloOALink })}
+                onClick={openZaloOA}
                 className="w-12 h-12 bg-[#009345] inline-flex justify-center items-center rounded-full shadow-md ring-2 ring-emerald-200/50"
               >
                 <Mailbox color="white" size={20} />
