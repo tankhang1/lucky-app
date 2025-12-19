@@ -85,10 +85,10 @@ const CardKQ = ({ r }: { r: TResultLuckyNumberItem }) => {
 
           {/* Giải thưởng */}
           <div className="min-w-0 space-y-1 flex-1">
-            <div className="text-lg text-center font-bold text-neutral-900 leading-tight line-clamp-1">
+            <div className="text-sm text-center font-bold text-neutral-900 leading-tight line-clamp-1">
               {title}
             </div>
-            <div className="text-base text-center text-neutral-700 leading-tight line-clamp-1">
+            <div className="text-sm text-center text-neutral-700 leading-tight line-clamp-2">
               {r.gift_name || "Quà tặng"}
             </div>
           </div>

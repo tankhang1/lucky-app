@@ -20,6 +20,7 @@ import {
 import { RootState } from "@/redux/store";
 import dayjs from "dayjs";
 import {
+  AudioLines,
   CalendarDays,
   CalendarOff,
   ChevronDown,
@@ -283,13 +284,13 @@ const ProgramDetailScreen = () => {
                   onClick={openPDF}
                   className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-5 right-5"
                 >
-                  <FileText className="w-5 h-5 text-[#E2672E]" />
+                  <FileText className="w-6 h-6 text-[#E2672E]" />
                 </button>
                 <button
                   onClick={playSound}
-                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-[65px] right-5"
+                  className="absolute top-[80px] right-5 flex items-center justify-center w-12 h-12 rounded-full bg-neutral-800 border-[5px] border-gray-200 hover:bg-neutral-700 transition-colors shadow-sm"
                 >
-                  <FileAudioIcon className="w-5 h-5 text-green-700" />
+                  <AudioLines className="w-5 h-5 text-white" />
                 </button>
                 {!!program.description && (
                   <div>
