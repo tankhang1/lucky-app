@@ -117,7 +117,11 @@ const SplashScreen = () => {
                 const params = new URLSearchParams(location.search);
                 const c = params.get("c");
                 if (c) {
-                  navigate(`/program/${c}`);
+                  navigate(`/program/${c}`, {
+                    state: {
+                      isDeeplink: true,
+                    },
+                  });
                 } else navigate("/home");
               })
               .catch((error) => {
@@ -153,7 +157,11 @@ const SplashScreen = () => {
           const params = new URLSearchParams(location.search);
           const c = params.get("c");
           if (c) {
-            navigate(`/program/${c}`);
+            navigate(`/program/${c}`, {
+              state: {
+                isDeeplink: true,
+              },
+            });
           }
         } else {
           setHasInfo(false);

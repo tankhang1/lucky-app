@@ -157,7 +157,12 @@ const HistoryLuckyResultPage = () => {
     }
   };
 
-  const onProgramDetail = (id: string) => navigate(`/program/${id}`);
+  const onProgramDetail = (id: string) =>
+    navigate(`/program/${id}`, {
+      state: {
+        isResult: true,
+      },
+    });
   return (
     <Page className="min-h-screen bg-neutral-50 flex flex-col">
       <Header

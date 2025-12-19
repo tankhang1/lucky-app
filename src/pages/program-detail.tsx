@@ -1,34 +1,15 @@
-import LuckConfirmModal from "@/components/lucky-confirm-modal";
-import LuckyOptionModal from "@/components/lucky-confirm-option-modal";
-import ListLuckyResultModal from "@/components/lucky-list-result-modal";
-import LuckyResultModal from "@/components/lucky-result-modal";
 import { PrizesList } from "@/components/program-detail-prizes";
 import { ResultsGrid } from "@/components/program-detail-result";
-import { SelectedNumberList } from "@/components/program-detail-selected-list";
 import LuckyNumbersSection from "@/components/program-detail-selected-section";
 import SegmentedTabs from "@/components/segmented-tabs";
 import {
   useGetCampaignDetailQuery,
   useGetListGiftQuery,
   useGetListResultNumberQuery,
-  useRequestLuckNumberMutation,
 } from "@/redux/api/campaign/campaign.api";
-import {
-  TLuckResultItem,
-  TResultLuckyNumberItem,
-} from "@/redux/api/campaign/campaign.response";
+import { TResultLuckyNumberItem } from "@/redux/api/campaign/campaign.response";
 import { RootState } from "@/redux/store";
-import dayjs from "dayjs";
-import {
-  AudioLines,
-  CalendarDays,
-  CalendarOff,
-  ChevronDown,
-  ChevronUp,
-  FileAudioIcon,
-  FileText,
-  SpeakerIcon,
-} from "lucide-react";
+import { AudioLines, ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -44,7 +25,7 @@ import {
   Stack,
   useParams,
   useNavigate,
-  Progress,
+  useLocation,
 } from "zmp-ui";
 
 type Prize = {
@@ -78,12 +59,6 @@ type Program = {
   audio_link: string;
 };
 
-const TABS = [
-  { key: "prizes", label: "Giải thưởng" },
-  { key: "selected", label: "Số đã chọn" },
-  { key: "results", label: "Kết quả" },
-] as const;
-
 const StatusPill = ({ status }: { status: Program["status"] }) => {
   const text =
     status === "open"
@@ -113,6 +88,7 @@ type TProgramDetail = {
 const ProgramDetailScreen = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const { p } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
     useGetCampaignDetailQuery(
@@ -235,6 +211,13 @@ const ProgramDetailScreen = () => {
       navigate("/home");
     }
   }, [isLoadingProgramDetail, programDetail]);
+  useEffect(() => {
+    if (location.state?.isResult) {
+      setTab("result");
+    } else {
+      setTab("info");
+    }
+  }, [location]);
   return (
     <Page className="relative min-h-screen bg-gray-50 text-neutral-900">
       <Header
@@ -242,7 +225,11 @@ const ProgramDetailScreen = () => {
         backgroundColor="bg-white/70 backdrop-blur-md"
         onBackClick={() => {
           stopSound();
-          navigate(-1);
+          if (location.state?.isDeeplink) {
+            navigate("/home");
+          } else {
+            navigate(-1);
+          }
         }}
         className="relative"
       />
@@ -282,9 +269,9 @@ const ProgramDetailScreen = () => {
               <div className="p-4 sm:p-5 relative">
                 <button
                   onClick={openPDF}
-                  className="flex items-center justify-center p-2 rounded-md border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors shadow-sm absolute top-5 right-5"
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-[#E2672E] border-orange-100  border-[5px] transition-colors shadow-sm absolute top-5 right-5"
                 >
-                  <FileText className="w-6 h-6 text-[#E2672E]" />
+                  <FileText className="w-5 h-5 text-white" />
                 </button>
                 <button
                   onClick={playSound}
