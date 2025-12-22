@@ -1,3 +1,4 @@
+import LuckyNoticeNumberModal from "@/components/lucky-notice-number-modal";
 import { PrizesList } from "@/components/program-detail-prizes";
 import { ResultsGrid } from "@/components/program-detail-result";
 import LuckyNumbersSection from "@/components/program-detail-selected-section";
@@ -114,24 +115,22 @@ const ProgramDetailScreen = () => {
       refetchOnReconnect: true,
     }
   );
-  const {
-    data: listResult,
-    isLoading: isLoadingListResult,
-    refetch: refetchListResult,
-  } = useGetListResultNumberQuery(
-    {
-      c: id || "",
-      p: p,
-    },
-    {
-      skip: !id || !p,
-      refetchOnFocus: true,
-      refetchOnMountOrArgChange: true,
-      refetchOnReconnect: true,
-    }
-  );
+  const { data: listResult, isLoading: isLoadingListResult } =
+    useGetListResultNumberQuery(
+      {
+        c: id || "",
+        p: p,
+      },
+      {
+        skip: !id || !p,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+        refetchOnReconnect: true,
+      }
+    );
 
   const [messageError, setMessageError] = useState("");
+  const [openedNotice, setOpenNotice] = useState(false);
   //@ts-expect-error no check
   const data: TProgramDetail = useMemo(
     () => ({
@@ -218,6 +217,24 @@ const ProgramDetailScreen = () => {
       setTab("info");
     }
   }, [location]);
+  useEffect(() => {
+    if (programDetail?.code) {
+      try {
+        const data: string = localStorage.getItem("program-key") || "";
+        const isExist = data.includes(programDetail.code);
+        console.log(isExist);
+        if (!isExist) {
+          setOpenNotice(true);
+          localStorage.setItem(
+            "program-key",
+            data + (data === "" ? "" : ",") + programDetail.code
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, [programDetail]);
   return (
     <Page className="relative min-h-screen bg-gray-50 text-neutral-900">
       <Header
@@ -404,6 +421,16 @@ const ProgramDetailScreen = () => {
           </Button>
         </Stack>
       </Modal>
+      <LuckyNoticeNumberModal
+        openedLucky={openedNotice}
+        onClose={() => {
+          setOpenNotice(false);
+        }}
+        programName={program.title}
+        count={
+          (programDetail?.number_limit || 0) - (programDetail?.number_get || 0)
+        }
+      />
     </Page>
   );
 };

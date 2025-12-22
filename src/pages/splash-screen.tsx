@@ -1,11 +1,8 @@
-import { isValidPhone } from "@/hooks/validate.hooks";
 import {
   useCheckUserIdMutation,
-  useGetOTPMutation,
   useUpdateZaloInfoMutation,
 } from "@/redux/api/auth/auth.api";
 import { updateBoth, updatePhone, updateUserId } from "@/redux/slices/appSlice";
-import { Phone } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -23,7 +20,6 @@ import {
   Button,
   Text,
   useNavigate,
-  Input,
   Modal,
   Stack,
   Sheet,
@@ -33,33 +29,13 @@ import { PRIVACY_HTML } from "@/constants/privacy.constant";
 const SplashScreen = () => {
   const dispatch = useDispatch();
   const [openPrivacy, setOpenPrivacy] = useState(false);
-  const [phone, setPhone] = useState("");
   const [hasInfo, setHasInfo] = useState(false);
   const [manualLoading, setManualLoading] = useState(false);
   const navigate = useNavigate();
   const [messageError, setMessageError] = useState("");
-  const canSubmit = useMemo(() => isValidPhone(phone), [phone]);
-  const [requestOtp, { isLoading: isLoadingRequestOtp }] = useGetOTPMutation();
   const [checkUserId, { isLoading: isLoadingCheckUserId }] =
     useCheckUserIdMutation();
   const [updateZaloInfo] = useUpdateZaloInfoMutation();
-  const onSubmit = async () => {
-    navigate("/home");
-    // await requestOtp({
-    //   phone,
-    // })
-    //   .unwrap()
-    //   .then(() => {
-    //     navigate("/otp", {
-    //       state: {
-    //         phone,
-    //       },
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     setMessageError(error.data.message);
-    //   });
-  };
   const onLoginWithZalo = async () => {
     if (hasInfo) {
       navigate("/home");
@@ -174,6 +150,11 @@ const SplashScreen = () => {
   useEffect(() => {
     onGetUserId();
   }, [onGetUserId]);
+  useEffect(() => {
+    try {
+      localStorage.clear();
+    } catch (error) {}
+  }, []);
   return (
     <Page className="relative min-h-screen overflow-hidden bg-gradient-to-b from-emerald-100 via-green-50 to-amber-50 text-neutral-900">
       <div className="pointer-events-none absolute -top-28 -left-24 h-80 w-80 rounded-full bg-emerald-200/70 blur-3xl animate-pulse" />
