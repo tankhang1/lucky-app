@@ -7,7 +7,7 @@ import {
   Stack,
   Button,
 } from "zmp-ui";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Logo from "@/assets/logo.png";
 import {
   useGetCampaignDetailQuery,
@@ -22,6 +22,7 @@ import { TLuckResultItem } from "@/redux/api/campaign/campaign.response";
 import LuckConfirmModal from "@/components/lucky-confirm-modal";
 import { Gift } from "lucide-react";
 import LuckyLoadingModal from "@/components/lucky-loading-modal";
+import LuckyNoticeCompleteModal from "@/components/lucky-notice-complete-modal";
 
 type TNum = { isWin: boolean; number: number };
 
@@ -56,7 +57,7 @@ const SelectNumberScreen = () => {
 
   const [openConfirmRequestAllModal, setOpenConfirmRequestAllModal] =
     useState(false);
-
+  const [openedComplete, setOpenComplete] = useState(false);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
     useGetCampaignDetailQuery(
       { c: id || "", p },
@@ -150,7 +151,13 @@ const SelectNumberScreen = () => {
   );
 
   const busy = loadingOne || loadingAll || isLoadingListResult;
-
+  useEffect(() => {
+    if (get === limit && !busy) {
+      setTimeout(() => {
+        setOpenComplete(true);
+      }, 1000);
+    }
+  }, [get, limit, busy]);
   return (
     <Box className="flex h-screen flex-col bg-gradient-to-b from-white to-neutral-50 text-neutral-900 overflow-hidden">
       <Box className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-neutral-200">
@@ -329,6 +336,11 @@ const SelectNumberScreen = () => {
         opened={openConfirmRequestAllModal}
         onClose={() => setOpenConfirmRequestAllModal(false)}
         onConfirm={onRandomAll}
+      />
+      <LuckyNoticeCompleteModal
+        openedLucky={openedComplete}
+        onClose={() => setOpenComplete(false)}
+        programName={programDetail?.name || ""}
       />
     </Box>
   );
