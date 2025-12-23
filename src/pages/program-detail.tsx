@@ -223,8 +223,14 @@ const ProgramDetailScreen = () => {
         const data: string = localStorage.getItem("program-key") || "";
         const isExist = data.includes(programDetail.code);
         console.log(isExist);
-        if (!isExist) {
+        if (
+          !isExist &&
+          programDetail?.number_get !== programDetail?.number_limit
+        ) {
           setOpenNotice(true);
+          setTimeout(() => {
+            setOpenNotice(false);
+          }, 5000);
           localStorage.setItem(
             "program-key",
             data + (data === "" ? "" : ",") + programDetail.code

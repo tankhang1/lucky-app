@@ -30,6 +30,13 @@ export default function LuckyResultModal({
   result,
   isDisabledContinue,
 }: Props) {
+  const [audioSpinInfo, setAudioSpinInfo] = useState<HTMLAudioElement | null>(
+    null
+  );
+  const [audioWinInfo, setAudioWinInfo] = useState<HTMLAudioElement | null>(
+    null
+  );
+
   const [toggleContinue, setToggleContinue] = useState(true);
   const [revealed, setRevealed] = useState(false);
   const timeText = useMemo(() => {
@@ -37,11 +44,66 @@ export default function LuckyResultModal({
     const d = new Date(result.time);
     return d.toLocaleString();
   }, [result.time]);
+  const spinAudio = useMemo(() => {
+    const audio = new Audio("https://mps-api.vmarketing.vn/audio/spin.mp3");
+    audio.preload = "auto";
+    audio.currentTime = 0.02;
+    return audio;
+  }, []);
+  const playSpinSound = () => {
+    if (!audioSpinInfo) {
+      setAudioSpinInfo(spinAudio);
 
+      // Use a promise to handle the play ensures no overlap
+      const playPromise = spinAudio.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.log("Playback failed:", error);
+        });
+      }
+    } else {
+      audioSpinInfo.pause();
+      audioSpinInfo.currentTime = 0.02;
+      setAudioSpinInfo(null);
+    }
+  };
+  const playWinSound = () => {
+    if (!audioWinInfo) {
+      const audio = new Audio("https://mps-api.vmarketing.vn/audio/win.mp3");
+      setAudioWinInfo(audio);
+      audio.play().catch((error) => {
+        console.log("Playback failed:", error);
+      });
+    } else {
+      audioWinInfo.pause();
+      audioWinInfo.currentTime = 0.02;
+      setAudioWinInfo(null);
+    }
+  };
+  const stopSpinSound = () => {
+    if (!audioSpinInfo) {
+      return;
+    }
+    audioSpinInfo.pause();
+    audioSpinInfo.currentTime = 0;
+    setAudioSpinInfo(null);
+  };
+  const stopWinSound = () => {
+    if (!audioWinInfo) {
+      return;
+    }
+    audioWinInfo.pause();
+    audioWinInfo.currentTime = 0;
+    setAudioWinInfo(null);
+  };
   useEffect(() => {
     if (!openedLucky) {
+      stopSpinSound();
       setRevealed(false);
       setToggleContinue(true);
+    } else {
+      playSpinSound();
     }
   }, [openedLucky]);
   return (
@@ -72,7 +134,11 @@ export default function LuckyResultModal({
               <RotateLuckyNumber
                 targetNumber={result.targetNumber}
                 openedLucky={openedLucky}
-                onComplete={() => setRevealed(true)}
+                onComplete={() => {
+                  setRevealed(true);
+                  stopSpinSound();
+                  playWinSound();
+                }}
               />
             )}
             {revealed && (
@@ -129,7 +195,10 @@ export default function LuckyResultModal({
                 <Button
                   variant="tertiary"
                   className="!border !border-gray-200 !bg-white text-black hover:!bg-gray-50"
-                  onClick={onClose}
+                  onClick={() => {
+                    onClose();
+                    stopWinSound();
+                  }}
                 >
                   Đóng
                 </Button>
@@ -148,6 +217,7 @@ export default function LuckyResultModal({
                       setToggleContinue(true);
                     }, 100);
                     onContinue?.();
+                    stopWinSound();
                   }}
                 >
                   Quay tiếp
