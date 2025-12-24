@@ -65,6 +65,7 @@ export default function LuckyResultModal({
     } else {
       audioSpinInfo.pause();
       audioSpinInfo.currentTime = 0.02;
+      audioSpinInfo.preload = "auto";
       setAudioSpinInfo(null);
     }
   };
@@ -86,7 +87,8 @@ export default function LuckyResultModal({
       return;
     }
     audioSpinInfo.pause();
-    audioSpinInfo.currentTime = 0;
+    audioSpinInfo.currentTime = 0.02;
+    audioSpinInfo.preload = "auto";
     setAudioSpinInfo(null);
   };
   const stopWinSound = () => {
@@ -211,6 +213,7 @@ export default function LuckyResultModal({
                       : "!bg-gray-400 !text-black"
                   }`}
                   onClick={() => {
+                    playSpinSound();
                     setRevealed(false);
                     setToggleContinue(false);
                     setTimeout(() => {
