@@ -100,7 +100,7 @@ export default function ProfileScreen() {
 
           {/* 3 nút hành động */}
           <Box className="flex items-center justify-around">
-            <Box className="flex flex-col justify-center items-center gap-1">
+            {/* <Box className="flex flex-col justify-center items-center gap-1">
               <Box
                 onClick={() => openWebview({ url: profile.website })}
                 className="w-12 h-12 bg-[#009345] inline-flex justify-center items-center rounded-full shadow-md ring-2 ring-emerald-200/50"
@@ -110,7 +110,7 @@ export default function ProfileScreen() {
               <Text className="text-xs text-neutral-700 font-medium">
                 Website
               </Text>
-            </Box>
+            </Box> */}
 
             <Box className="flex flex-col justify-center items-center gap-1">
               <Box

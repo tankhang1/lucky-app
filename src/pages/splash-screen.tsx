@@ -176,7 +176,7 @@ const SplashScreen = () => {
                     CHỌN SỐ MAY MẮN
                   </Text>
                   <Text className="text-xs text-neutral-500">
-                    Đăng nhập để tiếp tục trải nghiệm
+                    Chào mừng bạn đến với Mappacific Singapore
                   </Text>
                 </Box>
 
@@ -216,17 +216,10 @@ const SplashScreen = () => {
                   onClick={onLoginWithZalo}
                   disabled={isLoadingCheckUserId || manualLoading}
                   className="h-12 w-full rounded-xl font-semibold bg-white text-sky-700 ring-1 ring-sky-200 hover:bg-sky-50 shadow mt-4"
-                  prefixIcon={
-                    <img
-                      src="https://hidosport.vn/wp-content/uploads/2023/09/zalo-icon.png"
-                      alt="Zalo"
-                      className="h-5 w-5"
-                    />
-                  }
                 >
                   {isLoadingCheckUserId || manualLoading
                     ? "Đang xử lí..."
-                    : "Đăng nhập với Zalo"}
+                    : "Bắt đầu ngay"}
                 </Button>
 
                 <Box
