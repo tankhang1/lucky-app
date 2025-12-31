@@ -4,6 +4,7 @@ import { Modal, Box, Text, Button, Icon } from "zmp-ui";
 import RotateLuckyNumber from "./rotate-lucky-number";
 import Logo from "../assets/logo.png";
 import Confetti from "react-confetti-boom";
+import dayjs from "dayjs";
 type LuckyResult = {
   targetNumber: number;
   prizeLabel: string;
@@ -40,9 +41,10 @@ export default function LuckyResultModal({
   const [toggleContinue, setToggleContinue] = useState(true);
   const [revealed, setRevealed] = useState(false);
   const timeText = useMemo(() => {
-    if (!result.time) return new Date().toLocaleString();
-    const d = new Date(result.time);
-    return d.toLocaleString();
+    const d = dayjs(result.time);
+    return d.isValid()
+      ? d.format("DD/MM/YYYY HH:mm:ss")
+      : dayjs().format("DD/MM/YYYY HH:mm:ss");
   }, [result.time]);
   const spinAudio = useMemo(() => {
     const audio = new Audio("https://mps-api.vmarketing.vn/audio/spin.mp3");
