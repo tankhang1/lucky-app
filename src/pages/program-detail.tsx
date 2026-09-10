@@ -88,7 +88,7 @@ type TProgramDetail = {
 };
 const ProgramDetailScreen = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id, tab: tabParam } = useParams<{ id: string; tab?: string }>();
   const location = useLocation();
   const { p } = useSelector((state: RootState) => state.app);
   const { data: programDetail, isLoading: isLoadingProgramDetail } =
@@ -167,6 +167,26 @@ const ProgramDetailScreen = () => {
   const [tab, setTab] = useState<string>("info");
   const [audioInfo, setAudioInfo] = useState<HTMLAudioElement | null>(null);
 
+  const tabFromSearch = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("tab") ?? params.get("t");
+  }, [location.search]);
+
+  const desiredTab = useMemo(() => {
+    if ((location.state as any)?.isResult) return "result";
+
+    const raw = (tabFromSearch ?? tabParam ?? "").toLowerCase();
+    if (raw === "selected" || raw === "select" || raw === "pick")
+      return "selected";
+    if (raw === "result" || raw === "results") return "result";
+    if (raw === "info" || raw === "detail") return "info";
+    return "info";
+  }, [location.state, tabFromSearch, tabParam]);
+
+  const isDeeplink =
+    Boolean((location.state as any)?.isDeeplink) ||
+    (location as any)?.key === "default";
+
   const openPDF = () => {
     stopSound();
     if (!program?.pdf) {
@@ -211,12 +231,8 @@ const ProgramDetailScreen = () => {
     }
   }, [isLoadingProgramDetail, programDetail]);
   useEffect(() => {
-    if (location.state?.isResult) {
-      setTab("result");
-    } else {
-      setTab("info");
-    }
-  }, [location]);
+    setTab(desiredTab);
+  }, [desiredTab]);
   useEffect(() => {
     if (programDetail?.code) {
       try {
@@ -248,7 +264,7 @@ const ProgramDetailScreen = () => {
         backgroundColor="bg-white/70 backdrop-blur-md"
         onBackClick={() => {
           stopSound();
-          if (location.state?.isDeeplink) {
+          if (isDeeplink) {
             navigate("/home");
           } else {
             navigate(-1);

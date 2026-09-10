@@ -67,6 +67,7 @@ const SplashScreen = () => {
               code: "test",
               code_hash: "test",
             });
+            console.log(userInfo);
             await updateZaloInfo({
               access_token: accessToken,
               avatar: userInfo.userInfo.avatar,
@@ -87,17 +88,21 @@ const SplashScreen = () => {
                   updateBoth({
                     p: value.data.phone,
                     userId: value.data.zalo_user_id,
-                  })
+                  }),
                 );
                 setManualLoading(false);
                 const params = new URLSearchParams(location.search);
                 const c = params.get("c");
+                const tab = params.get("tab") ?? params.get("t");
                 if (c) {
-                  navigate(`/program/${c}`, {
-                    state: {
-                      isDeeplink: true,
+                  navigate(
+                    `/program/${c}${tab ? `?tab=${encodeURIComponent(tab)}` : ""}`,
+                    {
+                      state: {
+                        isDeeplink: true,
+                      },
                     },
-                  });
+                  );
                 } else navigate("/home");
               })
               .catch((error) => {
@@ -132,12 +137,16 @@ const SplashScreen = () => {
           setHasInfo(true);
           const params = new URLSearchParams(location.search);
           const c = params.get("c");
+          const tab = params.get("tab") ?? params.get("t");
           if (c) {
-            navigate(`/program/${c}`, {
-              state: {
-                isDeeplink: true,
+            navigate(
+              `/program/${c}${tab ? `?tab=${encodeURIComponent(tab)}` : ""}`,
+              {
+                state: {
+                  isDeeplink: true,
+                },
               },
-            });
+            );
           }
         } else {
           setHasInfo(false);

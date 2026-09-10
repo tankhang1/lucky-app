@@ -31,6 +31,7 @@ function Shell() {
         <Route path="/" element={<SplashScreen />} />
         <Route path="/home" element={<HomeScreen />} />
         <Route path="/program/:id" element={<ProgramDetailScreen />} />
+        <Route path="/program/:id/:tab" element={<ProgramDetailScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/otp" element={<OtpScreen />} />
         <Route path="/select-number/:id" element={<SelectNumberScreen />} />

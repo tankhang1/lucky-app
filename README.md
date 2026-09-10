@@ -37,6 +37,18 @@
 
 1. Open the mini app in Zalo by scanning the QR code.
 
+## Deep Links
+
+Program detail supports selecting the initial tab via URL:
+
+- Link 1 (tab Selected): `/?c=<programId>&tab=selected`
+- Link 2 (tab Result): `/?c=<programId>&tab=result`
+
+It also accepts direct routes:
+
+- `/program/<programId>?tab=selected|result`
+- `/program/<programId>/selected` or `/program/<programId>/result`
+
 ## Resources
 
 - [Zalo Mini App Official Website](https://mini.zalo.me/)
